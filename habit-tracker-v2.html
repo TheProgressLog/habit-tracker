@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Habit Tracker</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  :root {
+    --bg: #ffffff; --bg2: #f5f5f3; --bg3: #efefed;
+    --text: #1a1a18; --text2: #6b6b67; --text3: #9c9a92;
+    --border: rgba(0,0,0,0.12); --border2: rgba(0,0,0,0.22);
+    --radius: 8px; --radius-lg: 12px;
+    --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1c1c1a; --bg2: #242422; --bg3: #2e2e2c;
+      --text: #e8e6de; --text2: #9c9a92; --text3: #6b6b67;
+      --border: rgba(255,255,255,0.1); --border2: rgba(255,255,255,0.2);
+    }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font); background: var(--bg3); color: var(--text); min-height: 100vh; }
+  .container { max-width: 680px; margin: 0 auto; padding: 16px; }
+
+  .hero { background: #EAF3DE; border-radius: var(--radius-lg); padding: 16px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
+  .hero-title { font-size: 18px; font-weight: 500; color: #27500A; }
+  .hero-date { font-size: 12px; color: #3B6D11; margin-top: 2px; }
+  .hero-quote { font-size: 11px; color: #3B6D11; margin-top: 6px; font-style: italic; max-width: 360px; }
+  .ring-wrap { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+  .ring-val { font-size: 20px; font-weight: 500; color: #085041; }
+  .ring-lbl { font-size: 10px; color: #3B6D11; }
+
+  .mcards { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 8px; margin-bottom: 12px; }
+  .mc { border-radius: var(--radius); padding: 10px 12px; }
+  .mc-l { font-size: 10px; font-weight: 500; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 3px; }
+  .mc-v { font-size: 20px; font-weight: 500; }
+  .mc-s { font-size: 10px; margin-top: 1px; }
+
+  .tabs { display: flex; border: 0.5px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 12px; background: var(--bg); }
+  .tab { font-size: 12px; font-weight: 500; padding: 8px 0; cursor: pointer; border: none; background: transparent; color: var(--text2); flex: 1; text-align: center; }
+  .tab.on { background: var(--bg2); color: var(--text); }
+
+  .cat-block { border: 0.5px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; margin-bottom: 8px; background: var(--bg); }
+  .cat-hdr { display: flex; align-items: center; gap: 10px; padding: 12px 14px; cursor: pointer; user-select: none; }
+  .cat-hdr:hover { background: var(--bg2); }
+  .cat-icon { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0; }
+  .cat-info { flex: 1; min-width: 0; }
+  .cat-name { font-size: 13px; font-weight: 500; }
+  .cat-meta { font-size: 11px; color: var(--text2); margin-top: 1px; }
+  .cat-prog { display: flex; align-items: center; gap: 6px; }
+  .prog-bg { width: 56px; height: 5px; border-radius: 3px; background: var(--bg2); }
+  .prog-fill { height: 5px; border-radius: 3px; transition: width .3s; }
+  .cat-pct { font-size: 11px; font-weight: 500; min-width: 28px; text-align: right; }
+  .cat-chev { font-size: 13px; color: var(--text3); transition: transform .2s; flex-shrink: 0; }
+  .cat-chev.open { transform: rotate(90deg); }
+
+  .sub-list { border-top: 0.5px solid var(--border); padding: 8px 14px 10px; }
+  .sub-row { display: flex; align-items: center; gap: 9px; padding: 6px 0; border-bottom: 0.5px solid var(--border); }
+  .sub-row:last-of-type { border-bottom: none; }
+  .sub-chk { width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 10px; color: transparent; flex-shrink: 0; background: transparent; transition: all .12s; }
+  .sub-chk.on { color: #fff; }
+  .sub-name { font-size: 12px; flex: 1; }
+  .sub-name.done { color: var(--text2); text-decoration: line-through; }
+  .sub-streak { font-size: 10px; color: var(--text2); min-width: 28px; text-align: right; }
+  .sub-wdots { display: flex; gap: 2px; }
+  .sub-wd { width: 6px; height: 6px; border-radius: 50%; background: var(--bg3); }
+  .del-sub { background: transparent; border: none; cursor: pointer; color: var(--text3); font-size: 12px; padding: 0 2px; }
+  .del-sub:hover { color: var(--text2); }
+
+  .add-sub-row { display: flex; align-items: center; gap: 6px; padding-top: 8px; border-top: 0.5px solid var(--border); margin-top: 4px; }
+  .add-sub-inp { flex: 1; height: 28px; border: 0.5px solid var(--border2); border-radius: var(--radius); padding: 0 8px; font-size: 11px; background: var(--bg); color: var(--text); }
+  .add-sub-inp:focus { outline: none; border-color: #1D9E75; }
+  .add-sub-btn { height: 28px; padding: 0 10px; border-radius: var(--radius); border: 0.5px solid var(--border2); background: var(--bg); font-size: 11px; font-weight: 500; cursor: pointer; color: var(--text); display: flex; align-items: center; gap: 3px; white-space: nowrap; }
+  .add-sub-btn:hover { background: var(--bg2); }
+
+  .card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 14px 16px; margin-bottom: 10px; }
+  .card-hdr { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .card-title { font-size: 13px; font-weight: 500; }
+  .card-sub { font-size: 11px; color: var(--text2); }
+  .mn-nav { display: flex; align-items: center; gap: 5px; }
+  .mn-btn { background: transparent; border: 0.5px solid var(--border2); border-radius: var(--radius); width: 24px; height: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--text2); font-size: 13px; }
+  .mn-btn:hover { background: var(--bg2); }
+  .mn-lbl { font-size: 11px; font-weight: 500; min-width: 80px; text-align: center; }
+
+  .msumm { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 8px; margin-bottom: 12px; }
+  .msc { background: var(--bg2); border-radius: var(--radius); padding: 8px 10px; text-align: center; }
+  .msl { font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: .04em; margin-bottom: 2px; }
+  .msv { font-size: 16px; font-weight: 500; }
+
+  .rrow { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 0.5px solid var(--border); }
+  .rrow:last-child { border-bottom: none; }
+  .rbg { flex: 1; height: 5px; border-radius: 3px; background: var(--bg2); }
+
+  .pv { display: none; }
+  .pv.on { display: block; }
+  .seclbl { font-size: 10px; font-weight: 500; color: var(--text3); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 8px; }
+
+  .legend-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 9px; font-size: 11px; color: var(--text2); }
+  .legend-sq { display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 3px; vertical-align: middle; }
+
+  .note-area { width: 100%; min-height: 72px; border: 0.5px solid var(--border2); border-radius: var(--radius); padding: 8px 10px; font-size: 12px; font-family: var(--font); background: var(--bg); color: var(--text); resize: vertical; margin-bottom: 8px; }
+  .note-area:focus { outline: none; border-color: #1D9E75; }
+  .save-btn { height: 30px; padding: 0 14px; border-radius: var(--radius); background: var(--bg2); border: 0.5px solid var(--border2); font-size: 11px; font-weight: 500; cursor: pointer; color: var(--text); }
+  .save-btn:hover { background: var(--bg3); }
+  .saved-msg { display: none; font-size: 11px; color: #1D9E75; margin-top: 6px; }
+
+  @media (max-width: 480px) {
+    .mcards { grid-template-columns: repeat(2, minmax(0,1fr)); }
+    .hero-quote { display: none; }
+    .container { padding: 10px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="hero">
+  <div>
+    <div class="hero-title"><i class="ti ti-sun" style="font-size:15px;vertical-align:-2px;margin-right:6px;"></i>Habit Tracker</div>
+    <div class="hero-date" id="heroDate" onclick="openDatePicker()" style="cursor:pointer;" title="Klik untuk ganti tanggal">
+      <span id="heroDateText"></span>
+      <i class="ti ti-pencil" style="font-size:10px;margin-left:4px;opacity:0.6;vertical-align:0px;"></i>
+    </div>
+    <div id="datePickerWrap" style="display:none;margin-top:6px;">
+      <input type="date" id="datePicker" style="height:28px;border:0.5px solid #3B6D11;border-radius:6px;padding:0 8px;font-size:11px;background:#EAF3DE;color:#27500A;cursor:pointer;" onchange="changeDate(this.value)" />
+      <button onclick="closeDatePicker()" style="height:28px;padding:0 8px;border-radius:6px;border:0.5px solid #3B6D11;background:transparent;color:#27500A;font-size:11px;cursor:pointer;margin-left:4px;">✕</button>
+    </div>
+    <div id="backTodayBtn" style="display:none;margin-top:5px;">
+      <button onclick="changeDate(realToday())" style="height:24px;padding:0 10px;border-radius:6px;border:0.5px solid #3B6D11;background:#1D9E75;color:#fff;font-size:10px;font-weight:500;cursor:pointer;">↩ Kembali ke hari ini</button>
+    </div>
+    <div class="hero-quote" id="heroQuote"></div>
+  </div>
+  <div class="ring-wrap">
+    <svg width="62" height="62" viewBox="0 0 62 62" aria-hidden="true">
+      <circle cx="31" cy="31" r="25" fill="none" stroke="#C0DD97" stroke-width="5"/>
+      <circle cx="31" cy="31" r="25" fill="none" stroke="#1D9E75" stroke-width="5"
+        stroke-linecap="round" id="ringArc"
+        stroke-dasharray="157" stroke-dashoffset="157"
+        transform="rotate(-90 31 31)" style="transition:stroke-dashoffset .5s;"/>
+    </svg>
+    <div class="ring-val" id="ringVal">0%</div>
+    <div class="ring-lbl">hari ini</div>
+  </div>
+</div>
+
+<div class="mcards">
+  <div class="mc" style="background:#EAF3DE;">
+    <div class="mc-l" style="color:#3B6D11;">Sub-habit</div>
+    <div class="mc-v" style="color:#085041;" id="mToday">0/0</div>
+    <div class="mc-s" style="color:#3B6D11;">selesai hari ini</div>
+  </div>
+  <div class="mc" style="background:#E6F1FB;">
+    <div class="mc-l" style="color:#185FA5;">Bulan ini</div>
+    <div class="mc-v" style="color:#0C447C;" id="mMonth">0%</div>
+    <div class="mc-s" style="color:#185FA5;">rata-rata</div>
+  </div>
+  <div class="mc" style="background:#FAEEDA;">
+    <div class="mc-l" style="color:#854F0B;">Best streak</div>
+    <div class="mc-v" style="color:#633806;" id="mBest">0</div>
+    <div class="mc-s" style="color:#854F0B;">hari berturut</div>
+  </div>
+  <div class="mc" style="background:#FBEAF0;">
+    <div class="mc-l" style="color:#993556;">Total done</div>
+    <div class="mc-v" style="color:#72243E;" id="mTotal">0</div>
+    <div class="mc-s" style="color:#993556;">all time</div>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab on" onclick="switchTab('today',this)">Hari ini</button>
+  <button class="tab" onclick="switchTab('stats',this)">Statistik</button>
+  <button class="tab" onclick="switchTab('ranking',this)">Ranking</button>
+  <button class="tab" onclick="switchTab('notes',this)">Catatan</button>
+</div>
+
+<div id="pToday" class="pv on">
+  <div class="seclbl" id="todayLbl">Kategori &amp; sub-habit hari ini</div>
+  <div id="catList"></div>
+</div>
+
+<div id="pStats" class="pv">
+  <div class="card">
+    <div class="card-hdr">
+      <div class="card-title">Completion harian</div>
+      <div class="mn-nav">
+        <button class="mn-btn" onclick="changeMonth(-1)"><i class="ti ti-chevron-left"></i></button>
+        <div class="mn-lbl" id="monthLbl"></div>
+        <button class="mn-btn" onclick="changeMonth(1)"><i class="ti ti-chevron-right"></i></button>
+      </div>
+    </div>
+    <div class="msumm" id="mSumm"></div>
+    <div style="position:relative;width:100%;height:160px;"><canvas id="barChart" role="img" aria-label="Bar chart completion harian">Data harian.</canvas></div>
+    <div class="legend-row">
+      <span><span class="legend-sq" style="background:#085041;"></span>100%</span>
+      <span><span class="legend-sq" style="background:#1D9E75;"></span>≥75%</span>
+      <span><span class="legend-sq" style="background:#5DCAA5;"></span>≥50%</span>
+      <span><span class="legend-sq" style="background:#9FE1CB;"></span>>0%</span>
+      <span><span class="legend-sq" style="background:#F1EFE8;border:0.5px solid #D3D1C7;"></span>0%</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-hdr"><div class="card-title">Per kategori — bulan ini</div><div class="card-sub" id="catStatLbl"></div></div>
+    <div id="catStatWrap" style="position:relative;width:100%;height:220px;"><canvas id="catChart" role="img" aria-label="Per kategori bulan ini">Completion per kategori.</canvas></div>
+  </div>
+  <div class="card">
+    <div class="card-hdr"><div class="card-title">Tren 6 bulan terakhir</div></div>
+    <div style="position:relative;width:100%;height:120px;"><canvas id="trendChart" role="img" aria-label="Tren 6 bulan">Tren bulanan.</canvas></div>
+  </div>
+</div>
+
+<div id="pRanking" class="pv">
+  <div class="card">
+    <div class="card-hdr"><div class="card-title">Ranking sub-habit — all time</div></div>
+    <div id="rankList"></div>
+  </div>
+  <div class="card">
+    <div class="card-hdr"><div class="card-title">Ranking per kategori</div></div>
+    <div id="catRankList"></div>
+  </div>
+</div>
+
+<div id="pNotes" class="pv">
+  <div class="card">
+    <div class="card-hdr"><div class="card-title">Catatan harian</div><div class="card-sub" id="noteDateLbl"></div></div>
+    <textarea class="note-area" id="noteArea" placeholder="Tulis refleksi, target, atau catatan hari ini…"></textarea>
+    <button class="save-btn" onclick="saveNote()"><i class="ti ti-device-floppy" style="font-size:12px;margin-right:4px;vertical-align:-1px;"></i>Simpan</button>
+    <div class="saved-msg" id="savedMsg"><i class="ti ti-check" style="font-size:11px;margin-right:3px;"></i>Tersimpan!</div>
+  </div>
+  <div class="card">
+    <div class="card-hdr"><div class="card-title">Riwayat catatan</div></div>
+    <div id="noteHistory"></div>
+  </div>
+</div>
+
+</div>
+
+<script>
+const MSHORT=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+const MONTHS=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+const QUOTES=[
+  'Konsistensi kecil setiap hari menghasilkan perubahan besar.',
+  'Satu langkah lebih baik dari tidak sama sekali.',
+  'Habit yang baik adalah investasi terbaik untuk diri sendiri.',
+  'Mulailah, dan biarkan momentum yang membawamu.',
+  'Disiplin adalah jembatan antara tujuan dan pencapaian.',
+  'Hari ini adalah kesempatan baru untuk menjadi lebih baik.',
+  'Jaga istiqomah — itulah kunci keberhasilan sejati.',
+];
+
+const DEFAULT_CATS = [
+  { id:'ibadah',    name:'Ibadah',        icon:'ti-moon',   color:'#7F77DD', bg:'#EEEDFE', textColor:'#3C3489',
+    subs:[{id:'sholat5',name:'Sholat 5 waktu'},{id:'quran',name:'Baca Al-Quran'},{id:'dzikir',name:'Dzikir pagi & petang'},{id:'sunnah',name:'Sholat sunnah'}]},
+  { id:'olahraga',  name:'Olahraga',      icon:'ti-run',    color:'#1D9E75', bg:'#E1F5EE', textColor:'#085041',
+    subs:[{id:'gym',name:'Gym / latihan beban'},{id:'cardio',name:'Cardio / lari'},{id:'stretching',name:'Stretching / yoga'},{id:'steps',name:'10.000 langkah'}]},
+  { id:'diet',      name:'Diet sehat',    icon:'ti-salad',  color:'#EF9F27', bg:'#FAEEDA', textColor:'#633806',
+    subs:[{id:'air',name:'Minum 2L air'},{id:'sayur',name:'Makan sayur & buah'},{id:'nojunk',name:'Hindari junk food'},{id:'sarapan',name:'Sarapan bergizi'}]},
+  { id:'produktif', name:'Produktivitas', icon:'ti-bulb',   color:'#D4537E', bg:'#FBEAF0', textColor:'#72243E',
+    subs:[{id:'buku',name:'Baca buku 20 mnt'},{id:'belajar',name:'Belajar / kursus'},{id:'skill',name:'Latih skill baru'},{id:'jurnal',name:'Jurnal harian'},{id:'fokus',name:'Deep work 2 jam'}]},
+];
+
+let state = { cats: DEFAULT_CATS, log: {}, notes: {}, openCats: {} };
+let charts = {};
+let activeTab = 'today';
+let viewYear = new Date().getFullYear();
+let viewMonth = new Date().getMonth();
+let activeDate = new Date().toISOString().slice(0,10);
+
+function dk(n=0){const d=new Date();d.setDate(d.getDate()+n);return d.toISOString().slice(0,10);}
+function today(){return activeDate;}
+function realToday(){return new Date().toISOString().slice(0,10);}
+function openDatePicker(){
+  const wrap=document.getElementById('datePickerWrap');
+  const inp=document.getElementById('datePicker');
+  inp.value=activeDate;inp.max=realToday();
+  wrap.style.display=wrap.style.display==='none'?'flex':'none';
+}
+function closeDatePicker(){document.getElementById('datePickerWrap').style.display='none';}
+function changeDate(val){if(!val)return;activeDate=val;closeDatePicker();render();}
+function dateKey(y,m,d){return`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;}
+function daysInMonth(y,m){return new Date(y,m+1,0).getDate();}
+
+function save(){try{localStorage.setItem('ht_cf',JSON.stringify(state));}catch(e){}}
+function load(){
+  try{
+    const s=localStorage.getItem('ht_cf');
+    if(s){const l=JSON.parse(s);state.log=l.log||{};state.notes=l.notes||{};state.openCats=l.openCats||{};if(l.cats&&l.cats.length)state.cats=l.cats;}
+  }catch(e){}
+}
+
+function allSubs(){return state.cats.flatMap(c=>c.subs.map(s=>({...s,catId:c.id,catColor:c.color,catBg:c.bg,catName:c.name})));}
+
+function toggleSub(catId,subId){
+  const k=today();if(!state.log[k])state.log[k]={};
+  const key=catId+'__'+subId;state.log[k][key]=!state.log[k][key];
+  save();render();
+}
+function getSubStreak(catId,subId){
+  let s=0;const d=new Date();const t=today();const key=catId+'__'+subId;
+  if(!state.log[t]?.[key])d.setDate(d.getDate()-1);
+  for(let i=0;i<365;i++){const k=d.toISOString().slice(0,10);if(state.log[k]?.[key]){s++;d.setDate(d.getDate()-1);}else break;}
+  return s;
+}
+function getBestStreak(){return Math.max(0,...allSubs().map(s=>getSubStreak(s.catId,s.id)));}
+function getDayRate(dateK){
+  if(dateK>today())return null;const subs=allSubs();if(!subs.length)return 0;
+  return Math.round(subs.filter(s=>state.log[dateK]?.[s.catId+'__'+s.id]).length/subs.length*100);
+}
+function getCatMonthRate(catId,y,m){
+  const cat=state.cats.find(c=>c.id===catId);if(!cat)return 0;
+  const t=today();let td=0,tt=0;
+  for(let d=1;d<=daysInMonth(y,m);d++){const k=dateKey(y,m,d);if(k>t)continue;cat.subs.forEach(s=>{tt++;if(state.log[k]?.[catId+'__'+s.id])td++;});}
+  return tt?Math.round(td/tt*100):0;
+}
+function getMonthAvg(y,m){
+  const t=today();let td=0,tt=0;
+  for(let d=1;d<=daysInMonth(y,m);d++){const k=dateKey(y,m,d);if(k>t)continue;allSubs().forEach(s=>{tt++;if(state.log[k]?.[s.catId+'__'+s.id])td++;});}
+  return tt?Math.round(td/tt*100):0;
+}
+function addSub(catId){
+  const inp=document.getElementById('inp_'+catId);const name=inp.value.trim();if(!name)return;
+  const cat=state.cats.find(c=>c.id===catId);if(!cat)return;
+  cat.subs.push({id:'sub_'+Date.now(),name});inp.value='';save();render();
+}
+function delSub(catId,subId){
+  const cat=state.cats.find(c=>c.id===catId);if(!cat)return;
+  cat.subs=cat.subs.filter(s=>s.id!==subId);save();render();
+}
+function toggleCat(catId){state.openCats[catId]=!state.openCats[catId];save();renderToday();}
+
+function renderHero(){
+  const t=today();const subs=allSubs();
+  const done=subs.filter(s=>state.log[t]?.[s.catId+'__'+s.id]).length;
+  const pct=subs.length?Math.round(done/subs.length*100):0;
+  document.getElementById('ringVal').textContent=pct+'%';
+  document.getElementById('ringArc').style.strokeDashoffset=String(Math.round(157*(1-pct/100)));
+  const d=new Date(t+'T00:00:00');
+  const isToday=t===realToday();
+  document.getElementById('heroDateText').textContent=(isToday?'':'📅 ')+d.toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'})+(isToday?'':' (lihat balik)');
+  document.getElementById('heroQuote').textContent=QUOTES[d.getDate()%QUOTES.length];
+  document.getElementById('backTodayBtn').style.display=isToday?'none':'block';
+}
+
+function renderMetrics(){
+  const t=today();const subs=allSubs();
+  const done=subs.filter(s=>state.log[t]?.[s.catId+'__'+s.id]).length;
+  document.getElementById('mToday').textContent=`${done}/${subs.length}`;
+  const now=new Date();
+  document.getElementById('mMonth').textContent=getMonthAvg(now.getFullYear(),now.getMonth())+'%';
+  document.getElementById('mBest').textContent=getBestStreak();
+  let total=0;Object.values(state.log).forEach(day=>Object.values(day).forEach(v=>{if(v)total++;}));
+  document.getElementById('mTotal').textContent=total;
+  document.getElementById('todayLbl').textContent=`Kategori & sub-habit — ${done}/${subs.length} selesai hari ini`;
+}
+
+function renderToday(){
+  const t=today();
+  document.getElementById('catList').innerHTML=state.cats.map(cat=>{
+    const isOpen=!!state.openCats[cat.id];
+    const done=cat.subs.filter(s=>state.log[t]?.[cat.id+'__'+s.id]).length;
+    const total=cat.subs.length;
+    const pct=total?Math.round(done/total*100):0;
+    const subRows=cat.subs.map(s=>{
+      const key=cat.id+'__'+s.id;const isDone=!!state.log[t]?.[key];
+      const streak=getSubStreak(cat.id,s.id);
+      const wdots=Array.from({length:7},(_,i)=>{
+        const k=dk(i-6);const isT=i===6;const d=!!state.log[k]?.[key];
+        return`<div class="sub-wd" style="background:${d?cat.color:'var(--bg3)'};${isT&&!d?`border:1.5px solid ${cat.color};border-radius:50%;`:''}"></div>`;
+      }).join('');
+      return`<div class="sub-row">
+        <button class="sub-chk${isDone?' on':''}" style="border-color:${cat.color};${isDone?`background:${cat.color};`:''}"
+          onclick="toggleSub('${cat.id}','${s.id}')" aria-label="${s.name}">
+          ${isDone?'<i class="ti ti-check" style="font-size:9px;"></i>':''}
+        </button>
+        <span class="sub-name${isDone?' done':''}">${s.name}</span>
+        <div class="sub-wdots">${wdots}</div>
+        <span class="sub-streak" style="color:${cat.color};">
+          <i class="ti ti-flame" style="font-size:9px;vertical-align:-1px;color:#E24B4A;"></i>${streak}d
+        </span>
+        <button class="del-sub" onclick="delSub('${cat.id}','${s.id}')" aria-label="Hapus"><i class="ti ti-x"></i></button>
+      </div>`;
+    }).join('');
+    return`<div class="cat-block" style="border-color:${isOpen?cat.color:'var(--border)'};">
+      <div class="cat-hdr" onclick="toggleCat('${cat.id}')" style="${isOpen?`background:${cat.bg};`:''}">
+        <div class="cat-icon" style="background:${cat.bg};color:${cat.color};"><i class="ti ${cat.icon}"></i></div>
+        <div class="cat-info">
+          <div class="cat-name" style="color:${isOpen?cat.textColor:'var(--text)'};">${cat.name}</div>
+          <div class="cat-meta">${done}/${total} selesai · ${total} sub-habit</div>
+        </div>
+        <div class="cat-prog">
+          <div class="prog-bg"><div class="prog-fill" style="width:${pct}%;background:${cat.color};"></div></div>
+          <span class="cat-pct" style="color:${cat.color};">${pct}%</span>
+        </div>
+        <i class="ti ti-chevron-right cat-chev${isOpen?' open':''}" style="${isOpen?`color:${cat.color};`:''}"></i>
+      </div>
+      ${isOpen?`<div class="sub-list">
+        ${subRows}
+        <div class="add-sub-row">
+          <input class="add-sub-inp" id="inp_${cat.id}" placeholder="Tambah sub-habit baru…"
+            onkeydown="if(event.key==='Enter')addSub('${cat.id}')"/>
+          <button class="add-sub-btn" onclick="addSub('${cat.id}')">
+            <i class="ti ti-plus" style="font-size:11px;"></i> Tambah
+          </button>
+        </div>
+      </div>`:''}
+    </div>`;
+  }).join('');
+}
+
+function renderStats(){
+  const days=daysInMonth(viewYear,viewMonth);
+  document.getElementById('monthLbl').textContent=`${MSHORT[viewMonth]} ${viewYear}`;
+  document.getElementById('catStatLbl').textContent=`${MSHORT[viewMonth]} ${viewYear}`;
+  const rates=Array.from({length:days},(_,i)=>getDayRate(dateKey(viewYear,viewMonth,i+1)));
+  let active=0,perfect=0,sumR=0;
+  rates.forEach(r=>{if(r===null)return;active++;if(r===100)perfect++;sumR+=r;});
+  const avg=active?Math.round(sumR/active):0;
+  document.getElementById('mSumm').innerHTML=
+    `<div class="msc"><div class="msl">Rata-rata</div><div class="msv">${avg}%</div></div>`+
+    `<div class="msc"><div class="msl">Hari aktif</div><div class="msv">${active}</div></div>`+
+    `<div class="msc"><div class="msl">Perfect days</div><div class="msv">${perfect}</div></div>`;
+  const barColors=rates.map(r=>{
+    if(r===null)return'#F1EFE8';if(r===100)return'#085041';if(r>=75)return'#1D9E75';
+    if(r>=50)return'#5DCAA5';if(r>0)return'#9FE1CB';return'#F1EFE8';
+  });
+  if(charts.bar)charts.bar.destroy();
+  charts.bar=new Chart(document.getElementById('barChart'),{
+    type:'bar',
+    data:{labels:Array.from({length:days},(_,i)=>i+1),datasets:[{label:'%',data:rates.map(r=>r===null?0:r),backgroundColor:barColors,borderRadius:2,borderSkipped:false}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{title:ctx=>`Tgl ${ctx[0].label} ${MONTHS[viewMonth]}`,label:ctx=>ctx.parsed.y+'%'}}},scales:{y:{min:0,max:100,ticks:{callback:v=>v+'%',font:{size:9}},grid:{color:'rgba(128,128,128,0.06)'}},x:{ticks:{font:{size:9},autoSkip:false,maxRotation:0},grid:{display:false}}}}
+  });
+  const catRates=state.cats.map(c=>({name:c.name,pct:getCatMonthRate(c.id,viewYear,viewMonth),color:c.color}));
+  document.getElementById('catStatWrap').style.height=Math.max(state.cats.length*52+80,160)+'px';
+  if(charts.cat)charts.cat.destroy();
+  charts.cat=new Chart(document.getElementById('catChart'),{
+    type:'bar',
+    data:{labels:catRates.map(c=>c.name),datasets:[{label:'%',data:catRates.map(c=>c.pct),backgroundColor:catRates.map(c=>c.color),borderRadius:3,borderSkipped:false}]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>ctx.parsed.x+'%'}}},scales:{x:{min:0,max:100,ticks:{callback:v=>v+'%',font:{size:10}},grid:{color:'rgba(128,128,128,0.06)'}},y:{ticks:{font:{size:11}},grid:{display:false}}}}
+  });
+  const now=new Date();
+  const trendData=Array.from({length:6},(_,i)=>{
+    let m=now.getMonth()-5+i,y=now.getFullYear();
+    while(m<0){m+=12;y--;}
+    return{label:MSHORT[m],val:getMonthAvg(y,m)};
+  });
+  if(charts.trend)charts.trend.destroy();
+  charts.trend=new Chart(document.getElementById('trendChart'),{
+    type:'line',
+    data:{labels:trendData.map(d=>d.label),datasets:[{label:'%',data:trendData.map(d=>d.val),borderColor:'#1D9E75',backgroundColor:'rgba(29,158,117,0.12)',fill:true,tension:0.35,pointBackgroundColor:'#1D9E75',pointRadius:3,borderWidth:2}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>ctx.parsed.y+'%'}}},scales:{y:{min:0,max:100,ticks:{callback:v=>v+'%',font:{size:10}},grid:{color:'rgba(128,128,128,0.06)'}},x:{ticks:{font:{size:10}},grid:{display:false}}}}
+  });
+}
+
+function renderRanking(){
+  const t=today();const subs=allSubs();
+  const ranked=subs.map(s=>{
+    let d=0,tt=0;
+    Object.keys(state.log).forEach(k=>{if(k<=t){tt++;if(state.log[k]?.[s.catId+'__'+s.id])d++;}});
+    return{...s,pct:tt?Math.round(d/tt*100):0,streak:getSubStreak(s.catId,s.id)};
+  }).sort((a,b)=>b.pct-a.pct);
+  document.getElementById('rankList').innerHTML=ranked.length?ranked.map((s,i)=>
+    `<div class="rrow">
+      <span style="font-size:11px;color:var(--text3);width:16px;">${i+1}</span>
+      <span style="width:8px;height:8px;border-radius:50%;background:${s.catColor};flex-shrink:0;"></span>
+      <span style="font-size:10px;color:var(--text2);min-width:70px;">${s.catName}</span>
+      <span style="font-size:12px;font-weight:500;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${s.name}</span>
+      <div class="rbg"><div style="height:5px;border-radius:3px;background:${s.catColor};width:${s.pct}%;"></div></div>
+      <span style="font-size:11px;color:var(--text2);min-width:30px;text-align:right;">${s.pct}%</span>
+    </div>`
+  ).join(''):'<div style="text-align:center;padding:14px;font-size:12px;color:var(--text3);">Mulai centang habit untuk melihat ranking.</div>';
+  const catRanked=state.cats.map(c=>{
+    let d=0,tt=0;
+    Object.keys(state.log).forEach(k=>{if(k<=t)c.subs.forEach(s=>{tt++;if(state.log[k]?.[c.id+'__'+s.id])d++;});});
+    return{...c,pct:tt?Math.round(d/tt*100):0};
+  }).sort((a,b)=>b.pct-a.pct);
+  document.getElementById('catRankList').innerHTML=catRanked.map((c,i)=>
+    `<div class="rrow">
+      <span style="font-size:11px;color:var(--text3);width:16px;">${i+1}</span>
+      <div style="width:24px;height:24px;border-radius:50%;background:${c.bg};color:${c.color};display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;"><i class="ti ${c.icon}"></i></div>
+      <span style="font-size:12px;font-weight:500;flex:1;">${c.name}</span>
+      <span style="font-size:11px;color:var(--text2);margin-right:4px;">${c.subs.length} sub</span>
+      <div class="rbg"><div style="height:5px;border-radius:3px;background:${c.color};width:${c.pct}%;"></div></div>
+      <span style="font-size:11px;color:var(--text2);min-width:30px;text-align:right;">${c.pct}%</span>
+    </div>`
+  ).join('');
+}
+
+function renderNotes(){
+  const t=today();const now=new Date(t+'T00:00:00');
+  document.getElementById('noteDateLbl').textContent=now.toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long'});
+  document.getElementById('noteArea').value=state.notes[t]||'';
+  const hist=Object.keys(state.notes).sort((a,b)=>b.localeCompare(a)).slice(0,7);
+  document.getElementById('noteHistory').innerHTML=hist.length?hist.map(k=>{
+    const d=new Date(k);
+    return`<div style="padding:8px 0;border-bottom:0.5px solid var(--border);">
+      <div style="font-size:11px;color:var(--text2);margin-bottom:3px;">${d.toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'})}</div>
+      <div style="font-size:12px;line-height:1.5;">${state.notes[k]}</div>
+    </div>`;
+  }).join(''):'<div style="text-align:center;padding:14px;font-size:12px;color:var(--text3);">Belum ada catatan.</div>';
+}
+
+function saveNote(){
+  const t=today();const val=document.getElementById('noteArea').value.trim();
+  if(val)state.notes[t]=val;else delete state.notes[t];
+  save();renderNotes();
+  const el=document.getElementById('savedMsg');el.style.display='block';
+  setTimeout(()=>el.style.display='none',2000);
+}
+
+function changeMonth(dir){
+  viewMonth+=dir;if(viewMonth>11){viewMonth=0;viewYear++;}if(viewMonth<0){viewMonth=11;viewYear--;}
+  renderStats();
+}
+
+function switchTab(tab,btn){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));btn.classList.add('on');
+  document.querySelectorAll('.pv').forEach(p=>p.classList.remove('on'));
+  document.getElementById('p'+tab.charAt(0).toUpperCase()+tab.slice(1)).classList.add('on');
+  activeTab=tab;
+  if(tab==='stats')setTimeout(renderStats,50);
+  if(tab==='ranking')renderRanking();
+  if(tab==='notes')renderNotes();
+}
+
+function render(){renderHero();renderMetrics();renderToday();if(activeTab==='stats')renderStats();if(activeTab==='ranking')renderRanking();if(activeTab==='notes')renderNotes();}
+
+load();
+state.cats.forEach(c=>{if(state.openCats[c.id]===undefined)state.openCats[c.id]=true;});
+viewYear=new Date().getFullYear();viewMonth=new Date().getMonth();
+render();setTimeout(()=>{if(activeTab==='stats')renderStats();},100);
+</script>
+</body>
+</html>
