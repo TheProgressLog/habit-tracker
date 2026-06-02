@@ -1,3 +1,8 @@
+bash
+
+cat /mnt/user-data/outputs/habit-tracker/index.html
+Output
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -278,15 +283,22 @@ function openDatePicker(){
   wrap.style.display=wrap.style.display==='none'?'flex':'none';
 }
 function closeDatePicker(){document.getElementById('datePickerWrap').style.display='none';}
-function changeDate(val){if(!val)return;activeDate=val;closeDatePicker();render();}
+function changeDate(val){if(!val)return;activeDate=val;try{localStorage.setItem('ht_cf_date',activeDate);}catch(e){}closeDatePicker();render();}
 function dateKey(y,m,d){return`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;}
 function daysInMonth(y,m){return new Date(y,m+1,0).getDate();}
 
-function save(){try{localStorage.setItem('ht_cf',JSON.stringify(state));}catch(e){}}
+function save(){
+  try{
+    localStorage.setItem('ht_cf',JSON.stringify(state));
+    localStorage.setItem('ht_cf_date',activeDate);
+  }catch(e){}
+}
 function load(){
   try{
     const s=localStorage.getItem('ht_cf');
     if(s){const l=JSON.parse(s);state.log=l.log||{};state.notes=l.notes||{};state.openCats=l.openCats||{};if(l.cats&&l.cats.length)state.cats=l.cats;}
+    const savedDate=localStorage.getItem('ht_cf_date');
+    if(savedDate&&savedDate<=realToday())activeDate=savedDate;
   }catch(e){}
 }
 
@@ -326,7 +338,27 @@ function addSub(catId){
 }
 function delSub(catId,subId){
   const cat=state.cats.find(c=>c.id===catId);if(!cat)return;
+  if(!confirm('Hapus sub-habit ini? Data centang lama akan hilang!'))return;
   cat.subs=cat.subs.filter(s=>s.id!==subId);save();render();
+}
+function editSub(catId,subId){
+  const cat=state.cats.find(c=>c.id===catId);if(!cat)return;
+  const sub=cat.subs.find(s=>s.id===subId);if(!sub)return;
+  const el=document.getElementById('edit_'+subId);
+  const nameEl=document.getElementById('name_'+subId);
+  const isEditing=el.style.display!=='none';
+  if(isEditing){
+    const newName=el.value.trim();
+    if(newName){sub.name=newName;save();}
+    el.style.display='none';
+    nameEl.style.display='inline';
+  } else {
+    el.value=sub.name;
+    el.style.display='inline-block';
+    nameEl.style.display='none';
+    el.focus();
+  }
+  renderToday();
 }
 function toggleCat(catId){state.openCats[catId]=!state.openCats[catId];save();renderToday();}
 
@@ -374,12 +406,15 @@ function renderToday(){
           onclick="toggleSub('${cat.id}','${s.id}')" aria-label="${s.name}">
           ${isDone?'<i class="ti ti-check" style="font-size:9px;"></i>':''}
         </button>
-        <span class="sub-name${isDone?' done':''}">${s.name}</span>
+        <span class="sub-name${isDone?' done':''}" id="name_${s.id}">${s.name}</span>
+        <input id="edit_${s.id}" type="text" style="display:none;flex:1;height:22px;border:0.5px solid ${cat.color};border-radius:5px;padding:0 6px;font-size:11px;background:var(--bg);color:var(--text);"
+          onkeydown="if(event.key==='Enter')editSub('${cat.id}','${s.id}');if(event.key==='Escape'){this.style.display='none';document.getElementById('name_${s.id}').style.display='inline';}"/>
         <div class="sub-wdots">${wdots}</div>
         <span class="sub-streak" style="color:${cat.color};">
           <i class="ti ti-flame" style="font-size:9px;vertical-align:-1px;color:#E24B4A;"></i>${streak}d
         </span>
-        <button class="del-sub" onclick="delSub('${cat.id}','${s.id}')" aria-label="Hapus"><i class="ti ti-x"></i></button>
+        <button class="del-sub" onclick="editSub('${cat.id}','${s.id}')" aria-label="Edit" title="Edit nama"><i class="ti ti-pencil"></i></button>
+        <button class="del-sub" onclick="delSub('${cat.id}','${s.id}')" aria-label="Hapus" title="Hapus"><i class="ti ti-x"></i></button>
       </div>`;
     }).join('');
     return`<div class="cat-block" style="border-color:${isOpen?cat.color:'var(--border)'};">
