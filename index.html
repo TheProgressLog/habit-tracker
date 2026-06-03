@@ -352,6 +352,8 @@ function editItem(catId,itemId){
       const item=items.find(i=>i.id===itemId);
       if(item){item.name=v;saveToCloud(activeDate,catId,{items});}
     }
+    inpEl.style.display='none';
+    nameEl.style.display='inline';
     renderToday();
   } else {
     const items=getItems(activeDate,catId);
