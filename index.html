@@ -286,7 +286,12 @@ async function loadFromCloud(){
       state.log[row.date][row.cat_id]=row.data.items||[];
     }
   });
-  CATS.forEach(c=>{if(state.open[c.id]===undefined)state.open[c.id]=true;});
+  CATS.forEach(c=>{
+  if(state.open[c.id]===undefined)state.open[c.id]=true;
+});
+viewYear=new Date().getFullYear();
+viewMonth=new Date().getMonth();
+render();
   render();
 }
 
@@ -555,7 +560,11 @@ sb.auth.onAuthStateChange(async(event,session)=>{
   if(session){
     currentUser=session.user;
     showApp();
+    CATS.forEach(c=>{if(state.open[c.id]===undefined)state.open[c.id]=true;});
+    viewYear=new Date().getFullYear();
+    viewMonth=new Date().getMonth();
     await loadFromCloud();
+    render();
   } else {
     showAuth();
   }
