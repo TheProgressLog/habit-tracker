@@ -556,7 +556,11 @@ function switchTab(tab,btn){
 function render(){renderHero();renderMetrics();renderToday();if(activeTab==='stats')renderStats();if(activeTab==='ranking')renderRanking();if(activeTab==='notes')renderNotes();}
 
 // INIT
-sb.auth.onAuthStateChange(async(event,session)=>{
+showApp();
+CATS.forEach(c=>{if(state.open[c.id]===undefined)state.open[c.id]=true;});
+viewYear=new Date().getFullYear();
+viewMonth=new Date().getMonth();
+render();sb.auth.onAuthStateChange(async(event,session)=>{
   if(session){
     currentUser=session.user;
     showApp();
