@@ -286,12 +286,7 @@ async function loadFromCloud(){
       state.log[row.date][row.cat_id]=row.data.items||[];
     }
   });
-  CATS.forEach(c=>{
-  if(state.open[c.id]===undefined)state.open[c.id]=true;
-});
-viewYear=new Date().getFullYear();
-viewMonth=new Date().getMonth();
-
+  CATS.forEach(c=>{if(state.open[c.id]===undefined)state.open[c.id]=true;});
   render();
 }
 
@@ -352,8 +347,6 @@ function editItem(catId,itemId){
       const item=items.find(i=>i.id===itemId);
       if(item){item.name=v;saveToCloud(activeDate,catId,{items});}
     }
-    inpEl.style.display='none';
-    nameEl.style.display='inline';
     renderToday();
   } else {
     const items=getItems(activeDate,catId);
@@ -558,19 +551,11 @@ function switchTab(tab,btn){
 function render(){renderHero();renderMetrics();renderToday();if(activeTab==='stats')renderStats();if(activeTab==='ranking')renderRanking();if(activeTab==='notes')renderNotes();}
 
 // INIT
-showApp();
-CATS.forEach(c=>{if(state.open[c.id]===undefined)state.open[c.id]=true;});
-viewYear=new Date().getFullYear();
-viewMonth=new Date().getMonth();
-render();sb.auth.onAuthStateChange(async(event,session)=>{
+sb.auth.onAuthStateChange(async(event,session)=>{
   if(session){
     currentUser=session.user;
     showApp();
-    CATS.forEach(c=>{if(state.open[c.id]===undefined)state.open[c.id]=true;});
-    viewYear=new Date().getFullYear();
-    viewMonth=new Date().getMonth();
     await loadFromCloud();
-    render();
   } else {
     showAuth();
   }
