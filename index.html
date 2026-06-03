@@ -200,10 +200,14 @@ const MN=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','Se
 const DY=['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
 const QT=['Konsistensi kecil setiap hari menghasilkan perubahan besar.','Satu langkah lebih baik dari tidak sama sekali.','Habit yang baik adalah investasi terbaik untuk diri sendiri.','Mulailah, dan biarkan momentum yang membawamu.','Disiplin adalah jembatan antara tujuan dan pencapaian.','Hari ini adalah kesempatan baru untuk menjadi lebih baik.','Jaga istiqomah — itulah kunci keberhasilan sejati.'];
 const CATS=[
-  {id:'ibadah',name:'Ibadah',icon:'ti-moon',color:'#7F77DD',bg:'#EEEDFE',tc:'#3C3489'},
-  {id:'olahraga',name:'Olahraga',icon:'ti-run',color:'#1D9E75',bg:'#E1F5EE',tc:'#085041'},
-  {id:'diet',name:'Diet sehat',icon:'ti-salad',color:'#EF9F27',bg:'#FAEEDA',tc:'#633806'},
-  {id:'produktif',name:'Produktivitas',icon:'ti-bulb',color:'#D4537E',bg:'#FBEAF0',tc:'#72243E'},
+  {id:'ibadah',name:'Ibadah',icon:'ti-moon',color:'#7F77DD',bg:'#EEEDFE',tc:'#3C3489',
+   template:['Sholat 5 waktu','Baca Al-Quran','Dzikir pagi & petang','Sholat sunnah','Sedekah']},
+  {id:'olahraga',name:'Olahraga',icon:'ti-run',color:'#1D9E75',bg:'#E1F5EE',tc:'#085041',
+   template:['Lari / cardio','Push up & sit up','Gym / latihan beban','Stretching / yoga','Jalan kaki 10.000 langkah']},
+  {id:'diet',name:'Diet sehat',icon:'ti-salad',color:'#EF9F27',bg:'#FAEEDA',tc:'#633806',
+   template:['Minum 2L air','Makan sayur & buah','Hindari junk food','Sarapan bergizi','Tidur cukup 7-8 jam']},
+  {id:'produktif',name:'Produktivitas',icon:'ti-bulb',color:'#D4537E',bg:'#FBEAF0',tc:'#72243E',
+   template:['Baca buku 20 mnt','Belajar / kursus online','Latih skill baru','Jurnal harian','Deep work 2 jam']},
 ];
 
 let state={log:{},notes:{},open:{}};
@@ -299,8 +303,12 @@ async function saveToCloud(dateK,catId,data){
 // DATA
 function getItems(dateK,catId){
   if(!state.log[dateK])state.log[dateK]={};
-  if(!state.log[dateK][catId])state.log[dateK][catId]=[];
+  if(!state.log[dateK][catId]){
+    const cat=CATS.find(c=>c.id===catId);
+    state.log[dateK][catId]=cat.template.map((name,i)=>({id:'t'+catId+i,name,done:false}));
+  }
   return state.log[dateK][catId];
+}
 }
 
 async function addItem(catId){
