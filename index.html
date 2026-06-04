@@ -89,6 +89,18 @@ body{font-family:var(--font);background:var(--bg3);color:var(--text);min-height:
 </style>
 </head>
 <body>
+  <div id="loginModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:999;align-items:center;justify-content:center;">
+  <div style="background:var(--bg);border-radius:12px;padding:24px;max-width:360px;width:90%;margin:auto;">
+    <div style="font-size:16px;font-weight:500;margin-bottom:16px;text-align:center;">Login / Daftar</div>
+    <div id="loginErr" style="font-size:12px;color:#D4537E;text-align:center;margin-bottom:8px;display:none;"></div>
+    <div id="loginMsg" style="font-size:12px;color:#1D9E75;text-align:center;margin-bottom:8px;display:none;"></div>
+    <input id="loginEmail" type="email" placeholder="Email" style="width:100%;height:36px;border:0.5px solid var(--border2);border-radius:8px;padding:0 10px;font-size:13px;background:var(--bg);color:var(--text);margin-bottom:8px;"/>
+    <input id="loginPass" type="password" placeholder="Password (min 6 karakter)" style="width:100%;height:36px;border:0.5px solid var(--border2);border-radius:8px;padding:0 10px;font-size:13px;background:var(--bg);color:var(--text);margin-bottom:10px;"/>
+    <button onclick="doLogin()" style="width:100%;height:36px;border-radius:8px;border:none;background:#1D9E75;color:#fff;font-size:13px;font-weight:500;cursor:pointer;margin-bottom:6px;">Login</button>
+    <button onclick="doSignup()" style="width:100%;height:36px;border-radius:8px;border:0.5px solid var(--border2);background:var(--bg2);color:var(--text);font-size:13px;font-weight:500;cursor:pointer;margin-bottom:6px;">Daftar Akun Baru</button>
+    <button onclick="hideLoginModal()" style="width:100%;height:36px;border-radius:8px;border:0.5px solid var(--border2);background:transparent;color:var(--text2);font-size:12px;cursor:pointer;">Tutup</button>
+  </div>
+</div>
 <div class="wrap">
 <div class="hero">
   <div>
@@ -108,6 +120,7 @@ body{font-family:var(--font);background:var(--bg3);color:var(--text);min-height:
     <div class="ring-val" id="ringVal">0%</div>
     <div class="ring-lbl">hari ini</div>
     <button class="logout-btn" id="logoutBtn" onclick="doLogout()" style="display:none;">Logout</button>
+<button class="logout-btn" id="loginBtn" onclick="showLoginModal()" style="display:block;margin-top:4px;">Login / Daftar</button>
   </div>
 </div>
 <div class="mcards">
@@ -541,13 +554,46 @@ function render(){
 try{var o=localStorage.getItem('ht_open');if(o)state.open=JSON.parse(o);}catch(e){}
 viewYear=new Date().getFullYear();viewMonth=new Date().getMonth();
 render();
+function showLoginModal(){document.getElementById('loginModal').style.display='flex';}
+function hideLoginModal(){document.getElementById('loginModal').style.display='none';}
 
+async function doLogin(){
+  var email=document.getElementById('loginEmail').value.trim();
+  var pass=document.getElementById('loginPass').value;
+  document.getElementById('loginErr').style.display='none';
+  var res=await sb.auth.signInWithPassword({email:email,password:pass});
+  if(res.error){document.getElementById('loginErr').textContent=res.error.message;document.getElementById('loginErr').style.display='block';}
+  else{hideLoginModal();}
+}
+
+async function doSignup(){
+  var email=document.getElementById('loginEmail').value.trim();
+  var pass=document.getElementById('loginPass').value;
+  if(pass.length<6){document.getElementById('loginErr').textContent='Password minimal 6 karakter';document.getElementById('loginErr').style.display='block';return;}
+  var res=await sb.auth.signUp({email:email,password:pass});
+  if(res.error){document.getElementById('loginErr').textContent=res.error.message;document.getElementById('loginErr').style.display='block';}
+  else{document.getElementById('loginMsg').textContent='Cek email untuk verifikasi!';document.getElementById('loginMsg').style.display='block';}
+}
 sb.auth.getSession().then(function(res){
   var session=res.data.session;
   if(session){
     currentUser=session.user;
     document.getElementById('logoutBtn').style.display='block';
+    document.getElementById('loginBtn').style.display='none';
     cloudLoad();
+  }
+});
+
+sb.auth.onAuthStateChange(function(event,session){
+  if(session){
+    currentUser=session.user;
+    document.getElementById('logoutBtn').style.display='block';
+    document.getElementById('loginBtn').style.display='none';
+    cloudLoad();
+  } else {
+    currentUser=null;
+    document.getElementById('logoutBtn').style.display='none';
+    document.getElementById('loginBtn').style.display='block';
   }
 });
 </script>
