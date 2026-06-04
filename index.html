@@ -13,24 +13,14 @@
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:var(--font);background:var(--bg3);color:var(--text);min-height:100vh;}
 .wrap{max-width:680px;margin:0 auto;padding:16px;}
-.auth-wrap{max-width:400px;margin:80px auto;padding:24px;background:var(--bg);border-radius:var(--rl);border:0.5px solid var(--border);}
-.auth-title{font-size:20px;font-weight:500;margin-bottom:6px;text-align:center;}
-.auth-sub{font-size:12px;color:var(--text2);text-align:center;margin-bottom:20px;}
-.auth-inp{width:100%;height:38px;border:0.5px solid var(--border2);border-radius:var(--r);padding:0 12px;font-size:13px;background:var(--bg);color:var(--text);margin-bottom:10px;}
-.auth-inp:focus{outline:none;border-color:#1D9E75;}
-.auth-btn{width:100%;height:38px;border-radius:var(--r);border:none;background:#1D9E75;color:#fff;font-size:13px;font-weight:500;cursor:pointer;margin-bottom:8px;}
-.auth-btn:hover{background:#185f45;}
-.auth-btn.secondary{background:var(--bg2);color:var(--text);border:0.5px solid var(--border2);}
-.auth-btn.secondary:hover{background:var(--bg3);}
-.auth-err{font-size:12px;color:#D4537E;text-align:center;margin-bottom:8px;display:none;}
-.auth-msg{font-size:12px;color:#1D9E75;text-align:center;margin-bottom:8px;display:none;}
 .hero{background:#EAF3DE;border-radius:12px;padding:16px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;}
 .hero-title{font-size:18px;font-weight:500;color:#27500A;}
 .hero-date{font-size:12px;color:#3B6D11;margin-top:2px;cursor:pointer;}
-.hero-quote{font-size:11px;color:#3B6D11;margin-top:6px;font-style:italic;}
-.ring-wrap{display:flex;flex-direction:column;align-items:center;gap:2px;}
+.hero-quote{font-size:11px;color:#3B6D11;margin-top:6px;font-style:italic;max-width:360px;}
+.ring-wrap{display:flex;flex-direction:column;align-items:center;gap:4px;}
 .ring-val{font-size:20px;font-weight:500;color:#085041;}
 .ring-lbl{font-size:10px;color:#3B6D11;}
+.logout-btn{font-size:10px;padding:3px 8px;border-radius:6px;border:0.5px solid #3B6D11;background:transparent;cursor:pointer;color:#3B6D11;margin-top:4px;}
 .mcards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:12px;}
 .mc{border-radius:8px;padding:10px 12px;}
 .mc-l{font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px;}
@@ -65,7 +55,9 @@ body{font-family:var(--font);background:var(--bg3);color:var(--text);min-height:
 .sub-chk.on{color:#fff;}
 .sub-name{font-size:12px;flex:1;}
 .sub-name.done{color:var(--text2);text-decoration:line-through;}
-.sub-btn{background:transparent;border:none;cursor:pointer;color:var(--text3);font-size:14px;padding:3px 5px;border-radius:4px;display:flex;align-items:center;}
+.sub-edit-inp{display:none;flex:1;height:22px;border:0.5px solid var(--border2);border-radius:5px;padding:0 6px;font-size:12px;background:var(--bg);color:var(--text);}
+.sub-edit-inp:focus{outline:none;}
+.sub-btn{background:transparent;border:none;cursor:pointer;color:var(--text3);font-size:14px;padding:4px 6px;border-radius:4px;display:flex;align-items:center;min-width:28px;min-height:28px;justify-content:center;}
 .sub-btn:hover{color:var(--text);background:var(--bg2);}
 .add-row{display:flex;gap:6px;padding-top:8px;border-top:0.5px solid var(--border);margin-top:4px;}
 .add-inp{flex:1;height:30px;border:0.5px solid var(--border2);border-radius:8px;padding:0 8px;font-size:12px;background:var(--bg);color:var(--text);}
@@ -92,55 +84,30 @@ body{font-family:var(--font);background:var(--bg3);color:var(--text);min-height:
 .save-btn{height:30px;padding:0 14px;border-radius:8px;background:var(--bg2);border:0.5px solid var(--border2);font-size:11px;font-weight:500;cursor:pointer;color:var(--text);}
 .saved-msg{display:none;font-size:11px;color:#1D9E75;margin-top:6px;}
 .empty-day{text-align:center;padding:12px 0;font-size:12px;color:var(--text3);}
-.logout-btn{font-size:11px;padding:4px 10px;border-radius:8px;border:0.5px solid var(--border2);background:transparent;cursor:pointer;color:var(--text2);}
-.logout-btn:hover{background:var(--bg2);}
-.sync-indicator{font-size:10px;color:var(--text3);margin-left:6px;}
+.sync-lbl{font-size:10px;color:var(--text3);text-align:center;padding:4px;display:none;}
 @media(max-width:480px){.mcards{grid-template-columns:repeat(2,minmax(0,1fr));}.hero-quote{display:none;}.wrap{padding:10px;}}
 </style>
 </head>
 <body>
-
-<!-- LOGIN PAGE -->
-<div id="authPage" style="display:none;">
-  <div class="auth-wrap">
-    <div style="text-align:center;margin-bottom:16px;font-size:32px;">✅</div>
-    <div class="auth-title">Habit Tracker</div>
-    <div class="auth-sub" id="authSub">Login untuk mulai tracking</div>
-    <div class="auth-err" id="authErr"></div>
-    <div class="auth-msg" id="authMsg"></div>
-    <input class="auth-inp" id="authEmail" type="email" placeholder="Email kamu"/>
-    <input class="auth-inp" id="authPass" type="password" placeholder="Password"/>
-    <button class="auth-btn" onclick="doLogin()">Login</button>
-    <button class="auth-btn secondary" onclick="doSignup()">Daftar akun baru</button>
-    <div style="text-align:center;margin-top:8px;">
-      <span style="font-size:11px;color:var(--text2);cursor:pointer;" onclick="doForgot()">Lupa password?</span>
-    </div>
-  </div>
-</div>
-
-<!-- MAIN APP -->
-<div id="appPage" style="display:none;">
 <div class="wrap">
 <div class="hero">
   <div>
     <div class="hero-title"><i class="ti ti-sun" style="font-size:15px;vertical-align:-2px;margin-right:6px;"></i>Habit Tracker</div>
     <div class="hero-date" id="heroDate" onclick="openDp()"></div>
-    <div id="dpWrap" style="display:none;margin-top:6px;">
+    <div id="dpWrap" style="display:none;margin-top:6px;gap:4px;">
       <input type="date" id="dpInp" style="height:28px;border:0.5px solid #3B6D11;border-radius:6px;padding:0 8px;font-size:11px;background:#EAF3DE;color:#27500A;" onchange="changeDate(this.value)"/>
-      <button onclick="closeDp()" style="height:28px;padding:0 8px;border-radius:6px;border:0.5px solid #3B6D11;background:transparent;color:#27500A;font-size:11px;cursor:pointer;margin-left:4px;">✕</button>
+      <button onclick="closeDp()" style="height:28px;padding:0 8px;border-radius:6px;border:0.5px solid #3B6D11;background:transparent;color:#27500A;font-size:11px;cursor:pointer;">✕</button>
     </div>
     <div class="hero-quote" id="heroQuote"></div>
   </div>
-  <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
-    <div class="ring-wrap">
-      <svg width="62" height="62" viewBox="0 0 62 62">
-        <circle cx="31" cy="31" r="25" fill="none" stroke="#C0DD97" stroke-width="5"/>
-        <circle cx="31" cy="31" r="25" fill="none" stroke="#1D9E75" stroke-width="5" stroke-linecap="round" id="ringArc" stroke-dasharray="157" stroke-dashoffset="157" transform="rotate(-90 31 31)" style="transition:stroke-dashoffset .5s;"/>
-      </svg>
-      <div class="ring-val" id="ringVal">0%</div>
-      <div class="ring-lbl">hari ini</div>
-    </div>
-    <button class="logout-btn" onclick="doLogout()"><i class="ti ti-logout" style="font-size:11px;margin-right:3px;"></i>Logout</button>
+  <div class="ring-wrap">
+    <svg width="62" height="62" viewBox="0 0 62 62">
+      <circle cx="31" cy="31" r="25" fill="none" stroke="#C0DD97" stroke-width="5"/>
+      <circle cx="31" cy="31" r="25" fill="none" stroke="#1D9E75" stroke-width="5" stroke-linecap="round" id="ringArc" stroke-dasharray="157" stroke-dashoffset="157" transform="rotate(-90 31 31)" style="transition:stroke-dashoffset .5s;"/>
+    </svg>
+    <div class="ring-val" id="ringVal">0%</div>
+    <div class="ring-lbl">hari ini</div>
+    <button class="logout-btn" id="logoutBtn" onclick="doLogout()" style="display:none;">Logout</button>
   </div>
 </div>
 <div class="mcards">
@@ -167,8 +134,7 @@ body{font-family:var(--font);background:var(--bg3);color:var(--text);min-height:
 </div>
 <div id="pStats" class="pv">
   <div class="card">
-    <div class="card-hdr">
-      <div class="card-title">Completion harian</div>
+    <div class="card-hdr"><div class="card-title">Completion harian</div>
       <div class="mn-nav">
         <button class="mn-btn" onclick="changeMonth(-1)"><i class="ti ti-chevron-left"></i></button>
         <div class="mn-lbl" id="monthLbl"></div>
@@ -186,30 +152,27 @@ body{font-family:var(--font);background:var(--bg3);color:var(--text);min-height:
   <div class="card"><div class="card-hdr"><div class="card-title">Ranking per kategori</div></div><div id="catRankList"></div></div>
 </div>
 <div id="pNotes" class="pv">
-  <div class="card"><div class="card-hdr"><div class="card-title">Catatan harian</div><div class="card-sub" id="noteDateLbl"></div></div><textarea class="note-area" id="noteArea" placeholder="Tulis refleksi atau catatan hari ini…"></textarea><button class="save-btn" onclick="saveNote()">Simpan</button><div class="saved-msg" id="savedMsg">✓ Tersimpan!</div></div>
+  <div class="card"><div class="card-hdr"><div class="card-title">Catatan harian</div><div class="card-sub" id="noteDateLbl"></div></div>
+  <textarea class="note-area" id="noteArea" placeholder="Tulis refleksi atau catatan hari ini..."></textarea>
+  <button class="save-btn" onclick="saveNote()">Simpan</button>
+  <div class="saved-msg" id="savedMsg">Tersimpan!</div></div>
   <div class="card"><div class="card-hdr"><div class="card-title">Riwayat catatan</div></div><div id="noteHistory"></div></div>
 </div>
-</div>
+<div class="sync-lbl" id="syncLbl">Menyimpan...</div>
 </div><script>
-const SUPABASE_URL = 'https://lspnkyeuuskxmadbchbw.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_3iShrzXzT8Ech_Em3MSVZA_r192yok5';
-const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
+const SURL='https://lspnkyeuuskxmadbchbw.supabase.co';
+const SKEY='sb_publishable_3iShrzXzT8Ech_Em3MSVZA_r192yok5';
+const sb=supabase.createClient(SURL,SKEY);
 const MS=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
 const MN=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
 const DY=['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
-const QT=['Konsistensi kecil setiap hari menghasilkan perubahan besar.','Satu langkah lebih baik dari tidak sama sekali.','Habit yang baik adalah investasi terbaik untuk diri sendiri.','Mulailah, dan biarkan momentum yang membawamu.','Disiplin adalah jembatan antara tujuan dan pencapaian.','Hari ini adalah kesempatan baru untuk menjadi lebih baik.','Jaga istiqomah — itulah kunci keberhasilan sejati.'];
+const QT=['Konsistensi kecil setiap hari menghasilkan perubahan besar.','Satu langkah lebih baik dari tidak sama sekali.','Habit yang baik adalah investasi terbaik untuk diri sendiri.','Mulailah dan biarkan momentum membawamu.','Disiplin adalah jembatan antara tujuan dan pencapaian.','Hari ini adalah kesempatan baru untuk menjadi lebih baik.','Jaga istiqomah itulah kunci keberhasilan sejati.'];
 const CATS=[
-  {id:'ibadah',name:'Ibadah',icon:'ti-moon',color:'#7F77DD',bg:'#EEEDFE',tc:'#3C3489',
-   template:['Sholat 5 waktu','Baca Al-Quran','Dzikir pagi & petang','Sholat sunnah','Sedekah']},
-  {id:'olahraga',name:'Olahraga',icon:'ti-run',color:'#1D9E75',bg:'#E1F5EE',tc:'#085041',
-   template:['Lari / cardio','Push up & sit up','Gym / latihan beban','Stretching / yoga','Jalan kaki 10.000 langkah']},
-  {id:'diet',name:'Diet sehat',icon:'ti-salad',color:'#EF9F27',bg:'#FAEEDA',tc:'#633806',
-   template:['Minum 2L air','Makan sayur & buah','Hindari junk food','Sarapan bergizi','Tidur cukup 7-8 jam']},
-  {id:'produktif',name:'Produktivitas',icon:'ti-bulb',color:'#D4537E',bg:'#FBEAF0',tc:'#72243E',
-   template:['Baca buku 20 mnt','Belajar / kursus online','Latih skill baru','Jurnal harian','Deep work 2 jam']},
+  {id:'ibadah',name:'Ibadah',icon:'ti-moon',color:'#7F77DD',bg:'#EEEDFE',tc:'#3C3489',tmpl:['Sholat 5 waktu','Baca Al-Quran','Dzikir pagi dan petang','Sholat sunnah','Sedekah']},
+  {id:'olahraga',name:'Olahraga',icon:'ti-run',color:'#1D9E75',bg:'#E1F5EE',tc:'#085041',tmpl:['Lari cardio','Push up dan sit up','Gym latihan beban','Stretching yoga','Jalan kaki 10000 langkah']},
+  {id:'diet',name:'Diet sehat',icon:'ti-salad',color:'#EF9F27',bg:'#FAEEDA',tc:'#633806',tmpl:['Minum 2L air','Makan sayur dan buah','Hindari junk food','Sarapan bergizi','Tidur cukup 7-8 jam']},
+  {id:'produktif',name:'Produktivitas',icon:'ti-bulb',color:'#D4537E',bg:'#FBEAF0',tc:'#72243E',tmpl:['Baca buku 20 mnt','Belajar kursus online','Latih skill baru','Jurnal harian','Deep work 2 jam']},
 ];
-
 let state={log:{},notes:{},open:{}};
 let charts={};
 let activeTab='today';
@@ -218,329 +181,349 @@ let viewYear=new Date().getFullYear(),viewMonth=new Date().getMonth();
 let currentUser=null;
 
 function rt(){return new Date().toISOString().slice(0,10);}
-function dk(y,m,d){return`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;}
+function dk(y,m,d){return y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');}
 function dim(y,m){return new Date(y,m+1,0).getDate();}
 
-// AUTH
-async function doLogin(){
-  const email=document.getElementById('authEmail').value.trim();
-  const pass=document.getElementById('authPass').value;
-  showAuthErr('');
-  const{error}=await sb.auth.signInWithPassword({email,password:pass});
-  if(error)showAuthErr(error.message);
-}
+function lsKey(dateK,catId){return'ht_'+dateK+'_'+catId;}
+function lsSave(dateK,catId,items){try{localStorage.setItem(lsKey(dateK,catId),JSON.stringify(items));}catch(e){}}
+function lsLoad(dateK,catId){try{var s=localStorage.getItem(lsKey(dateK,catId));return s?JSON.parse(s):null;}catch(e){return null;}}
+function lsSaveNote(dateK,text){try{localStorage.setItem('ht_note_'+dateK,text);}catch(e){}}
+function lsLoadNote(dateK){try{return localStorage.getItem('ht_note_'+dateK)||'';}catch(e){return '';}}
 
-async function doSignup(){
-  const email=document.getElementById('authEmail').value.trim();
-  const pass=document.getElementById('authPass').value;
-  if(pass.length<6){showAuthErr('Password minimal 6 karakter');return;}
-  showAuthErr('');
-  const{error}=await sb.auth.signUp({email,password:pass});
-  if(error)showAuthErr(error.message);
-  else showAuthMsg('Cek email kamu untuk verifikasi!');
-}
-
-async function doForgot(){
-  const email=document.getElementById('authEmail').value.trim();
-  if(!email){showAuthErr('Masukkan email dulu');return;}
-  const{error}=await sb.auth.resetPasswordForEmail(email,{redirectTo:'https://habit-tracker-76b.pages.dev'});
-  if(error)showAuthErr(error.message);
-  else showAuthMsg('Link reset password sudah dikirim ke email!');
-}
-
-async function doLogout(){
-  await sb.auth.signOut();
-  currentUser=null;
-  state={log:{},notes:{},open:{}};
-  showAuth();
-}
-
-function showAuthErr(msg){
-  const el=document.getElementById('authErr');
-  el.textContent=msg;el.style.display=msg?'block':'none';
-}
-function showAuthMsg(msg){
-  const el=document.getElementById('authMsg');
-  el.textContent=msg;el.style.display=msg?'block':'none';
-}
-function showAuth(){
-  document.getElementById('authPage').style.display='block';
-  document.getElementById('appPage').style.display='none';
-}
-function showApp(){
-  document.getElementById('authPage').style.display='none';
-  document.getElementById('appPage').style.display='block';
-}
-
-// SUPABASE DATA
-async function loadFromCloud(){
+async function cloudSave(dateK,catId,items){
   if(!currentUser)return;
-  const{data,error}=await sb.from('habits').select('*').eq('user_id',currentUser.id);
-  if(error)return;
-  state.log={};state.notes={};
-  data.forEach(row=>{
-    if(row.cat_id==='notes'){
-      state.notes[row.date]=row.data.text;
-    } else {
-      if(!state.log[row.date])state.log[row.date]={};
-      state.log[row.date][row.cat_id]=row.data.items||[];
-    }
-  });
-  CATS.forEach(c=>{if(state.open[c.id]===undefined)state.open[c.id]=true;});
-  render();
+  try{document.getElementById('syncLbl').style.display='block';
+  await sb.from('habits').upsert({user_id:currentUser.id,date:dateK,cat_id:catId,data:{items:items}},{onConflict:'user_id,date,cat_id'});
+  document.getElementById('syncLbl').style.display='none';}catch(e){document.getElementById('syncLbl').style.display='none';}
 }
 
-async function saveToCloud(dateK,catId,data){
+async function cloudSaveNote(dateK,text){
   if(!currentUser)return;
-  const{error}=await sb.from('habits').upsert({
-    user_id:currentUser.id,
-    date:dateK,
-    cat_id:catId,
-    data:data
-  },{onConflict:'user_id,date,cat_id'});
+  try{await sb.from('habits').upsert({user_id:currentUser.id,date:dateK,cat_id:'notes',data:{text:text}},{onConflict:'user_id,date,cat_id'});}catch(e){}
 }
 
-// DATA
+async function cloudLoad(){
+  if(!currentUser)return;
+  try{
+    var res=await sb.from('habits').select('*').eq('user_id',currentUser.id);
+    if(!res.data)return;
+    res.data.forEach(function(row){
+      if(row.cat_id==='notes'){
+        state.notes[row.date]=row.data.text||'';
+        lsSaveNote(row.date,row.data.text||'');
+      } else {
+        if(!state.log[row.date])state.log[row.date]={};
+        var items=row.data.items||[];
+        state.log[row.date][row.cat_id]=items;
+        lsSave(row.date,row.cat_id,items);
+      }
+    });
+    render();
+  }catch(e){}
+}
+
 function getItems(dateK,catId){
   if(!state.log[dateK])state.log[dateK]={};
   if(!state.log[dateK][catId]){
-    const cat=CATS.find(c=>c.id===catId);
-    state.log[dateK][catId]=cat.template.map((name,i)=>({id:'t'+catId+i,name,done:false}));
+    var cached=lsLoad(dateK,catId);
+    if(cached){state.log[dateK][catId]=cached;}
+    else{
+      var cat=CATS.find(function(c){return c.id===catId;});
+      state.log[dateK][catId]=cat.tmpl.map(function(name,i){return{id:'t'+catId+i,name:name,done:false};});
+    }
   }
   return state.log[dateK][catId];
 }
 
+function saveItems(dateK,catId){
+  var items=state.log[dateK]&&state.log[dateK][catId]?state.log[dateK][catId]:[];
+  lsSave(dateK,catId,items);
+  cloudSave(dateK,catId,items);
+}
 
-async function addItem(catId){
-  const inp=document.getElementById('ai_'+catId);
-  const name=inp.value.trim();if(!name)return;
-  getItems(activeDate,catId).push({id:'i'+Date.now(),name,done:false});
+function addItem(catId){
+  var inp=document.getElementById('ai_'+catId);
+  var name=inp.value.trim();if(!name)return;
+  getItems(activeDate,catId).push({id:'i'+Date.now(),name:name,done:false});
   inp.value='';
-  await saveToCloud(activeDate,catId,{items:getItems(activeDate,catId)});
+  saveItems(activeDate,catId);
   renderToday();renderMetrics();renderHero();
 }
 
-async function toggleItem(catId,itemId){
-  const items=getItems(activeDate,catId);
-  const item=items.find(i=>i.id===itemId);
-  if(item)item.done=!item.done;
-  await saveToCloud(activeDate,catId,{items});
+function toggleItem(catId,itemId){
+  var items=getItems(activeDate,catId);
+  var item=null;
+  for(var i=0;i<items.length;i++){if(items[i].id===itemId){item=items[i];break;}}
+  if(item){item.done=!item.done;saveItems(activeDate,catId);}
   renderToday();renderMetrics();renderHero();
 }
 
-async function deleteItem(catId,itemId){
-  if(!state.log[activeDate]||!state.log[activeDate][catId])return;
-  state.log[activeDate][catId]=state.log[activeDate][catId].filter(i=>i.id!==itemId);
-  await saveToCloud(activeDate,catId,{items:state.log[activeDate][catId]});
+function deleteItem(catId,itemId){
+  var items=getItems(activeDate,catId);
+  state.log[activeDate][catId]=items.filter(function(i){return i.id!==itemId;});
+  saveItems(activeDate,catId);
   renderToday();renderMetrics();renderHero();
 }
 
-function editItem(catId,itemId){
-  const nameEl=document.getElementById('n_'+itemId);
-  const inpEl=document.getElementById('e_'+itemId);
+function startEdit(catId,itemId){
+  var nameEl=document.getElementById('n_'+itemId);
+  var inpEl=document.getElementById('e_'+itemId);
   if(!nameEl||!inpEl)return;
-  const isEditing=inpEl.style.display==='inline-block';
-  if(isEditing){
-    const v=inpEl.value.trim();
-    if(v){
-      const items=getItems(activeDate,catId);
-      const item=items.find(i=>i.id===itemId);
-      if(item){item.name=v;saveToCloud(activeDate,catId,{items});}
-    }
-    renderToday();
-  } else {
-    const items=getItems(activeDate,catId);
-    const item=items.find(i=>i.id===itemId);
-    inpEl.value=item?item.name:'';
-    nameEl.style.display='none';
-    inpEl.style.display='inline-block';
-    inpEl.focus();
-  }
+  var items=getItems(activeDate,catId);
+  var item=null;
+  for(var i=0;i<items.length;i++){if(items[i].id===itemId){item=items[i];break;}}
+  if(!item)return;
+  inpEl.value=item.name;
+  nameEl.style.display='none';
+  inpEl.style.display='inline-block';
+  inpEl.focus();
 }
 
-function toggleCat(catId){state.open[catId]=!state.open[catId];renderToday();}
-function shiftDate(n){const d=new Date(activeDate+'T00:00:00');d.setDate(d.getDate()+n);activeDate=d.toISOString().slice(0,10);render();}
+function saveEdit(catId,itemId){
+  var inpEl=document.getElementById('e_'+itemId);
+  var nameEl=document.getElementById('n_'+itemId);
+  if(!inpEl||!nameEl)return;
+  var v=inpEl.value.trim();
+  if(v){
+    var items=getItems(activeDate,catId);
+    var item=null;
+    for(var i=0;i<items.length;i++){if(items[i].id===itemId){item=items[i];break;}}
+    if(item){item.name=v;saveItems(activeDate,catId);}
+  }
+  inpEl.style.display='none';
+  nameEl.style.display='inline';
+  renderToday();
+}
+
+function toggleCat(catId){
+  state.open[catId]=!state.open[catId];
+  try{localStorage.setItem('ht_open',JSON.stringify(state.open));}catch(e){}
+  renderToday();
+}
+
+function shiftDate(n){
+  var d=new Date(activeDate+'T00:00:00');d.setDate(d.getDate()+n);
+  activeDate=d.toISOString().slice(0,10);render();
+}
 function goToday(){activeDate=rt();render();}
-function openDp(){const w=document.getElementById('dpWrap');const i=document.getElementById('dpInp');w.style.display=w.style.display==='none'?'flex':'none';i.value=activeDate;i.max=rt();}
+function openDp(){
+  var w=document.getElementById('dpWrap');
+  var inp=document.getElementById('dpInp');
+  w.style.display=w.style.display==='none'?'flex':'none';
+  inp.value=activeDate;inp.max=rt();
+}
 function closeDp(){document.getElementById('dpWrap').style.display='none';}
 function changeDate(v){if(!v)return;activeDate=v;closeDp();render();}
 
+async function doLogout(){
+  if(currentUser){await sb.auth.signOut();}
+  currentUser=null;
+  document.getElementById('logoutBtn').style.display='none';
+  location.reload();
+}
+
 function getAllItems(dateK){
-  if(!state.log[dateK])return[];
-  return CATS.flatMap(c=>(state.log[dateK][c.id]||[]).map(i=>({...i,catId:c.id,catColor:c.color})));
+  var result=[];
+  CATS.forEach(function(c){
+    var items=state.log[dateK]&&state.log[dateK][c.id]?state.log[dateK][c.id]:lsLoad(dateK,c.id)||[];
+    items.forEach(function(i){result.push(Object.assign({},i,{catId:c.id,catColor:c.color}));});
+  });
+  return result;
 }
 
 function getDayRate(dateK){
   if(dateK>rt())return null;
-  const items=getAllItems(dateK);
+  var items=getAllItems(dateK);
   if(!items.length)return null;
-  return Math.round(items.filter(i=>i.done).length/items.length*100);
+  var done=items.filter(function(i){return i.done;}).length;
+  return Math.round(done/items.length*100);
 }
 
 function getCatMonthRate(catId,y,m){
-  let done=0,total=0;
-  for(let d=1;d<=dim(y,m);d++){
-    const k=dk(y,m,d);if(k>rt())continue;
-    const items=(state.log[k]?.[catId])||[];
-    total+=items.length;done+=items.filter(i=>i.done).length;
+  var done=0,total=0;
+  for(var d=1;d<=dim(y,m);d++){
+    var k=dk(y,m,d);if(k>rt())continue;
+    var items=state.log[k]&&state.log[k][catId]?state.log[k][catId]:lsLoad(k,catId)||[];
+    total+=items.length;
+    done+=items.filter(function(i){return i.done;}).length;
   }
   return total?Math.round(done/total*100):0;
 }
 
 function getMonthAvg(y,m){
-  let done=0,total=0;
-  for(let d=1;d<=dim(y,m);d++){
-    const k=dk(y,m,d);if(k>rt())continue;
-    const items=getAllItems(k);
-    total+=items.length;done+=items.filter(i=>i.done).length;
+  var done=0,total=0;
+  for(var d=1;d<=dim(y,m);d++){
+    var k=dk(y,m,d);if(k>rt())continue;
+    var items=getAllItems(k);
+    total+=items.length;
+    done+=items.filter(function(i){return i.done;}).length;
   }
   return total?Math.round(done/total*100):0;
 }
 
 function getBestStreak(){
-  let best=0,cur=0;
-  for(let i=364;i>=0;i--){
-    const d=new Date();d.setDate(d.getDate()-i);
-    const k=d.toISOString().slice(0,10);
-    const items=getAllItems(k);
-    if(items.length&&items.some(i=>i.done)){cur++;best=Math.max(best,cur);}else cur=0;
+  var best=0,cur=0;
+  for(var i=364;i>=0;i--){
+    var d=new Date();d.setDate(d.getDate()-i);
+    var k=d.toISOString().slice(0,10);
+    var items=getAllItems(k);
+    var hasDone=items.length>0&&items.some(function(x){return x.done;});
+    if(hasDone){cur++;if(cur>best)best=cur;}else{cur=0;}
   }
   return best;
 }
 
 function renderHero(){
-  const items=getAllItems(activeDate);
-  const done=items.filter(i=>i.done).length;
-  const pct=items.length?Math.round(done/items.length*100):0;
+  var items=getAllItems(activeDate);
+  var done=items.filter(function(i){return i.done;}).length;
+  var pct=items.length?Math.round(done/items.length*100):0;
   document.getElementById('ringVal').textContent=pct+'%';
   document.getElementById('ringArc').style.strokeDashoffset=String(Math.round(157*(1-pct/100)));
-  const d=new Date(activeDate+'T00:00:00');
-  const isToday=activeDate===rt();
-  document.getElementById('heroDate').innerHTML=`${isToday?'':'📅 '}${DY[d.getDay()]}, ${d.getDate()} ${MS[d.getMonth()]} ${d.getFullYear()}${isToday?'':' (lihat balik)'} <i class="ti ti-pencil" style="font-size:10px;opacity:.6;"></i>`;
+  var d=new Date(activeDate+'T00:00:00');
+  var isToday=activeDate===rt();
+  document.getElementById('heroDate').innerHTML=(isToday?'':'Tgl lain: ')+DY[d.getDay()]+', '+d.getDate()+' '+MS[d.getMonth()]+' '+d.getFullYear()+' <i class="ti ti-pencil" style="font-size:10px;opacity:.6;"></i>';
   document.getElementById('heroQuote').textContent=QT[d.getDate()%QT.length];
   document.getElementById('dateNavLbl').textContent=isToday?'Hari ini':DY[d.getDay()]+', '+d.getDate()+' '+MS[d.getMonth()];
 }
 
 function renderMetrics(){
-  const items=getAllItems(activeDate);
-  const done=items.filter(i=>i.done).length;
-  document.getElementById('mToday').textContent=`${done}/${items.length}`;
-  const now=new Date();
+  var items=getAllItems(activeDate);
+  var done=items.filter(function(i){return i.done;}).length;
+  document.getElementById('mToday').textContent=done+'/'+items.length;
+  var now=new Date();
   document.getElementById('mMonth').textContent=getMonthAvg(now.getFullYear(),now.getMonth())+'%';
   document.getElementById('mBest').textContent=getBestStreak();
-  let total=0;
-  Object.values(state.log).forEach(dl=>{CATS.forEach(c=>{(dl[c.id]||[]).forEach(i=>{if(i.done)total++;});});});
+  var total=0;
+  for(var i=0;i<365;i++){
+    var d=new Date();d.setDate(d.getDate()-i);
+    var k=d.toISOString().slice(0,10);
+    getAllItems(k).forEach(function(item){if(item.done)total++;});
+  }
   document.getElementById('mTotal').textContent=total;
-  document.getElementById('todayLbl').textContent=`Aktivitas — ${done}/${items.length} selesai hari ini`;
+  document.getElementById('todayLbl').textContent='Aktivitas - '+done+'/'+items.length+' selesai hari ini';
 }
 
 function renderToday(){
-  document.getElementById('catList').innerHTML=CATS.map(cat=>{
-    const isOpen=!!state.open[cat.id];
-    const items=getItems(activeDate,cat.id);
-    const done=items.filter(i=>i.done).length;
-    const pct=items.length?Math.round(done/items.length*100):0;
-    const rows=items.map(item=>`
-      <div class="sub-row">
-        <button class="sub-chk${item.done?' on':''}" style="border-color:${cat.color};${item.done?`background:${cat.color};`:''}" onclick="toggleItem('${cat.id}','${item.id}')">
-          ${item.done?'<i class="ti ti-check" style="font-size:10px;"></i>':''}
-        </button>
-        <span class="sub-name${item.done?' done':''}" id="n_${item.id}">${item.name}</span>
-        <input id="e_${item.id}" type="text" style="display:none;flex:1;height:22px;border:0.5px solid ${cat.color};border-radius:5px;padding:0 6px;font-size:11px;background:var(--bg);color:var(--text);"
-          onkeydown="if(event.key==='Enter'||event.key==='Escape')editItem('${cat.id}','${item.id}')" onblur="editItem('${cat.id}','${item.id}')"/>
-        <button class="sub-btn" onclick="editItem('${cat.id}','${item.id}')" title="Edit"><i class="ti ti-pencil"></i></button>
-        <button class="sub-btn" onclick="deleteItem('${cat.id}','${item.id}')" title="Hapus"><i class="ti ti-trash"></i></button>
-      </div>`).join('');
-    return`<div class="cat-block" style="border-color:${isOpen?cat.color:'var(--border)'};">
-      <div class="cat-hdr" onclick="toggleCat('${cat.id}')" style="${isOpen?`background:${cat.bg};`:''}">
-        <div class="cat-icon" style="background:${cat.bg};color:${cat.color};"><i class="ti ${cat.icon}"></i></div>
-        <div class="cat-info">
-          <div class="cat-name" style="color:${isOpen?cat.tc:'var(--text)'};">${cat.name}</div>
-          <div class="cat-meta">${done}/${items.length} selesai · ${items.length} aktivitas</div>
-        </div>
-        <div style="display:flex;align-items:center;gap:6px;">
-          <div class="prog-bg"><div class="prog-fill" style="width:${pct}%;background:${cat.color};"></div></div>
-          <span class="cat-pct" style="color:${cat.color};">${pct}%</span>
-        </div>
-        <i class="ti ti-chevron-right cat-chev${isOpen?' open':''}" style="${isOpen?`color:${cat.color};`:''}"></i>
-      </div>
-      ${isOpen?`<div class="sub-list">
-        ${rows||'<div class="empty-day">Belum ada aktivitas — tambah di bawah!</div>'}
-        <div class="add-row">
-          <input class="add-inp" id="ai_${cat.id}" placeholder="Tambah aktivitas hari ini…" onkeydown="if(event.key==='Enter')addItem('${cat.id}')"/>
-          <button class="add-btn" onclick="addItem('${cat.id}')" style="color:${cat.tc};border-color:${cat.color};"><i class="ti ti-plus" style="font-size:11px;"></i> Tambah</button>
-        </div>
-      </div>`:''}
-    </div>`;
+  document.getElementById('catList').innerHTML=CATS.map(function(cat){
+    var isOpen=state.open[cat.id]!==false;
+    var items=getItems(activeDate,cat.id);
+    var done=items.filter(function(i){return i.done;}).length;
+    var pct=items.length?Math.round(done/items.length*100):0;
+    var rows=items.map(function(item){
+      return '<div class="sub-row">'+
+        '<button class="sub-chk'+(item.done?' on':'')+'" style="border-color:'+cat.color+';'+(item.done?'background:'+cat.color+';':'')+'" onclick="toggleItem(\''+cat.id+'\',\''+item.id+'\')">'+
+        (item.done?'<i class="ti ti-check" style="font-size:10px;"></i>':'')+
+        '</button>'+
+        '<span class="sub-name'+(item.done?' done':'')+'" id="n_'+item.id+'">'+item.name+'</span>'+
+        '<input class="sub-edit-inp" id="e_'+item.id+'" type="text" style="border-color:'+cat.color+';" '+
+        'onkeydown="if(event.key===\'Enter\'||event.key===\'Escape\')saveEdit(\''+cat.id+'\',\''+item.id+'\')" '+
+        'onblur="saveEdit(\''+cat.id+'\',\''+item.id+'\')"/>'+
+        '<button class="sub-btn" onclick="startEdit(\''+cat.id+'\',\''+item.id+'\')" title="Edit"><i class="ti ti-pencil"></i></button>'+
+        '<button class="sub-btn" onclick="deleteItem(\''+cat.id+'\',\''+item.id+'\')" title="Hapus"><i class="ti ti-trash"></i></button>'+
+        '</div>';
+    }).join('');
+    return '<div class="cat-block" style="border-color:'+(isOpen?cat.color:'var(--border)')+';">'+
+      '<div class="cat-hdr" onclick="toggleCat(\''+cat.id+'\')" style="'+(isOpen?'background:'+cat.bg+';':'')+'">'+
+      '<div class="cat-icon" style="background:'+cat.bg+';color:'+cat.color+';"><i class="ti '+cat.icon+'"></i></div>'+
+      '<div class="cat-info">'+
+      '<div class="cat-name" style="color:'+(isOpen?cat.tc:'var(--text)')+';">'+cat.name+'</div>'+
+      '<div class="cat-meta">'+done+'/'+items.length+' selesai</div>'+
+      '</div>'+
+      '<div style="display:flex;align-items:center;gap:6px;">'+
+      '<div class="prog-bg"><div class="prog-fill" style="width:'+pct+'%;background:'+cat.color+';"></div></div>'+
+      '<span class="cat-pct" style="color:'+cat.color+';">'+pct+'%</span>'+
+      '</div>'+
+      '<i class="ti ti-chevron-right cat-chev'+(isOpen?' open':'')+'" style="'+(isOpen?'color:'+cat.color+';':'')+'"></i>'+
+      '</div>'+
+      (isOpen?'<div class="sub-list">'+
+      (rows||'<div class="empty-day">Belum ada aktivitas - tambah di bawah!</div>')+
+      '<div class="add-row">'+
+      '<input class="add-inp" id="ai_'+cat.id+'" placeholder="Tambah aktivitas hari ini..." onkeydown="if(event.key===\'Enter\')addItem(\''+cat.id+'\')"/>'+
+      '<button class="add-btn" onclick="addItem(\''+cat.id+'\')" style="color:'+cat.tc+';border-color:'+cat.color+';"><i class="ti ti-plus" style="font-size:11px;"></i> Tambah</button>'+
+      '</div></div>':'')+
+      '</div>';
   }).join('');
 }
 
 function renderStats(){
-  const days=dim(viewYear,viewMonth);
-  document.getElementById('monthLbl').textContent=`${MS[viewMonth]} ${viewYear}`;
-  document.getElementById('catStatLbl').textContent=`${MS[viewMonth]} ${viewYear}`;
-  const rates=Array.from({length:days},(_,i)=>getDayRate(dk(viewYear,viewMonth,i+1)));
-  let active=0,perfect=0,sumR=0;
-  rates.forEach(r=>{if(r===null)return;active++;if(r===100)perfect++;sumR+=r;});
-  const avg=active?Math.round(sumR/active):0;
-  document.getElementById('mSumm').innerHTML=`<div class="msc"><div class="msl">Rata-rata</div><div class="msv">${avg}%</div></div><div class="msc"><div class="msl">Hari aktif</div><div class="msv">${active}</div></div><div class="msc"><div class="msl">Perfect days</div><div class="msv">${perfect}</div></div>`;
-  const bc=rates.map(r=>{if(r===null)return'#F1EFE8';if(r===100)return'#085041';if(r>=75)return'#1D9E75';if(r>=50)return'#5DCAA5';if(r>0)return'#9FE1CB';return'#F1EFE8';});
+  var days=dim(viewYear,viewMonth);
+  document.getElementById('monthLbl').textContent=MS[viewMonth]+' '+viewYear;
+  document.getElementById('catStatLbl').textContent=MS[viewMonth]+' '+viewYear;
+  var rates=[];
+  for(var i=0;i<days;i++){rates.push(getDayRate(dk(viewYear,viewMonth,i+1)));}
+  var active=0,perfect=0,sumR=0;
+  rates.forEach(function(r){if(r===null)return;active++;if(r===100)perfect++;sumR+=r;});
+  var avg=active?Math.round(sumR/active):0;
+  document.getElementById('mSumm').innerHTML='<div class="msc"><div class="msl">Rata-rata</div><div class="msv">'+avg+'%</div></div><div class="msc"><div class="msl">Hari aktif</div><div class="msv">'+active+'</div></div><div class="msc"><div class="msl">Perfect days</div><div class="msv">'+perfect+'</div></div>';
+  var labels=[];for(var i=0;i<days;i++)labels.push(i+1);
+  var bc=rates.map(function(r){if(r===null)return'#F1EFE8';if(r===100)return'#085041';if(r>=75)return'#1D9E75';if(r>=50)return'#5DCAA5';if(r>0)return'#9FE1CB';return'#F1EFE8';});
   if(charts.bar)charts.bar.destroy();
-  charts.bar=new Chart(document.getElementById('barChart'),{type:'bar',data:{labels:Array.from({length:days},(_,i)=>i+1),datasets:[{label:'%',data:rates.map(r=>r===null?0:r),backgroundColor:bc,borderRadius:2,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{title:ctx=>`Tgl ${ctx[0].label} ${MN[viewMonth]}`,label:ctx=>ctx.parsed.y+'%'}}},scales:{y:{min:0,max:100,ticks:{callback:v=>v+'%',font:{size:9}},grid:{color:'rgba(128,128,128,0.06)'}},x:{ticks:{font:{size:9},autoSkip:false,maxRotation:0},grid:{display:false}}}}});
-  const cr=CATS.map(c=>({name:c.name,pct:getCatMonthRate(c.id,viewYear,viewMonth),color:c.color}));
+  charts.bar=new Chart(document.getElementById('barChart'),{type:'bar',data:{labels:labels,datasets:[{label:'%',data:rates.map(function(r){return r===null?0:r;}),backgroundColor:bc,borderRadius:2,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{min:0,max:100,ticks:{callback:function(v){return v+'%';},font:{size:9}}},x:{ticks:{font:{size:9},autoSkip:false,maxRotation:0},grid:{display:false}}}}});
+  var cr=CATS.map(function(c){return{name:c.name,pct:getCatMonthRate(c.id,viewYear,viewMonth),color:c.color};});
   document.getElementById('catStatWrap').style.height=Math.max(CATS.length*52+80,160)+'px';
   if(charts.cat)charts.cat.destroy();
-  charts.cat=new Chart(document.getElementById('catChart'),{type:'bar',data:{labels:cr.map(c=>c.name),datasets:[{label:'%',data:cr.map(c=>c.pct),backgroundColor:cr.map(c=>c.color),borderRadius:3,borderSkipped:false}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>ctx.parsed.x+'%'}}},scales:{x:{min:0,max:100,ticks:{callback:v=>v+'%',font:{size:10}},grid:{color:'rgba(128,128,128,0.06)'}},y:{ticks:{font:{size:11}},grid:{display:false}}}}});
-  const now=new Date();
-  const td=Array.from({length:6},(_,i)=>{let m=now.getMonth()-5+i,y=now.getFullYear();while(m<0){m+=12;y--;}return{label:MS[m],val:getMonthAvg(y,m)};});
+  charts.cat=new Chart(document.getElementById('catChart'),{type:'bar',data:{labels:cr.map(function(c){return c.name;}),datasets:[{label:'%',data:cr.map(function(c){return c.pct;}),backgroundColor:cr.map(function(c){return c.color;}),borderRadius:3,borderSkipped:false}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{min:0,max:100,ticks:{callback:function(v){return v+'%';},font:{size:10}}},y:{ticks:{font:{size:11}},grid:{display:false}}}}});
+  var now=new Date();
+  var td=[];
+  for(var i=0;i<6;i++){var m=now.getMonth()-5+i,y=now.getFullYear();while(m<0){m+=12;y--;}td.push({label:MS[m],val:getMonthAvg(y,m)});}
   if(charts.trend)charts.trend.destroy();
-  charts.trend=new Chart(document.getElementById('trendChart'),{type:'line',data:{labels:td.map(d=>d.label),datasets:[{label:'%',data:td.map(d=>d.val),borderColor:'#1D9E75',backgroundColor:'rgba(29,158,117,0.12)',fill:true,tension:0.35,pointBackgroundColor:'#1D9E75',pointRadius:3,borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>ctx.parsed.y+'%'}}},scales:{y:{min:0,max:100,ticks:{callback:v=>v+'%',font:{size:10}},grid:{color:'rgba(128,128,128,0.06)'}},x:{ticks:{font:{size:10}},grid:{display:false}}}}});
+  charts.trend=new Chart(document.getElementById('trendChart'),{type:'line',data:{labels:td.map(function(d){return d.label;}),datasets:[{label:'%',data:td.map(function(d){return d.val;}),borderColor:'#1D9E75',backgroundColor:'rgba(29,158,117,0.12)',fill:true,tension:0.35,pointBackgroundColor:'#1D9E75',pointRadius:3,borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{min:0,max:100,ticks:{callback:function(v){return v+'%';},font:{size:10}}},x:{ticks:{font:{size:10}},grid:{display:false}}}}});
 }
 
 function renderRanking(){
-  const today=rt();const nc={};const cd={};const ct={};
-  CATS.forEach(c=>{cd[c.id]=0;ct[c.id]=0;});
-  Object.keys(state.log).forEach(dateK=>{
-    if(dateK>today)return;
-    CATS.forEach(c=>{
-      const items=state.log[dateK]?.[c.id]||[];
+  var nc={},cd={},ct={};
+  CATS.forEach(function(c){cd[c.id]=0;ct[c.id]=0;});
+  for(var i=0;i<365;i++){
+    var d=new Date();d.setDate(d.getDate()-i);
+    var dateK=d.toISOString().slice(0,10);
+    CATS.forEach(function(c){
+      var items=state.log[dateK]&&state.log[dateK][c.id]?state.log[dateK][c.id]:lsLoad(dateK,c.id)||[];
       ct[c.id]+=items.length;
-      items.forEach(i=>{if(i.done){cd[c.id]++;nc[i.name]=(nc[i.name]||0)+1;}});
+      items.forEach(function(item){if(item.done){cd[c.id]++;nc[item.name]=(nc[item.name]||0)+1;}});
     });
-  });
-  const ranked=Object.entries(nc).sort((a,b)=>b[1]-a[1]).slice(0,10);
-  const mx=ranked[0]?.[1]||1;
-  document.getElementById('rankList').innerHTML=ranked.length?ranked.map(([name,count],i)=>`<div class="rrow"><span style="font-size:11px;color:var(--text3);width:16px;">${i+1}</span><span style="font-size:12px;font-weight:500;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${name}</span><div class="rbg"><div style="height:5px;border-radius:3px;background:#1D9E75;width:${Math.round(count/mx*100)}%;"></div></div><span style="font-size:11px;color:var(--text2);min-width:30px;text-align:right;">${count}x</span></div>`).join(''):'<div style="text-align:center;padding:14px;font-size:12px;color:var(--text3);">Belum ada data.</div>';
-  const cr=CATS.map(c=>({...c,pct:ct[c.id]?Math.round(cd[c.id]/ct[c.id]*100):0,total:ct[c.id]})).sort((a,b)=>b.pct-a.pct);
-  document.getElementById('catRankList').innerHTML=cr.map((c,i)=>`<div class="rrow"><span style="font-size:11px;color:var(--text3);width:16px;">${i+1}</span><div style="width:24px;height:24px;border-radius:50%;background:${c.bg};color:${c.color};display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;"><i class="ti ${c.icon}"></i></div><span style="font-size:12px;font-weight:500;flex:1;">${c.name}</span><div class="rbg"><div style="height:5px;border-radius:3px;background:${c.color};width:${c.pct}%;"></div></div><span style="font-size:11px;color:var(--text2);min-width:30px;text-align:right;">${c.pct}%</span></div>`).join('');
-}
-
-async function renderNotes(){
-  const d=new Date(activeDate+'T00:00:00');
-  document.getElementById('noteDateLbl').textContent=DY[d.getDay()]+', '+d.getDate()+' '+MS[d.getMonth()];
-  document.getElementById('noteArea').value=state.notes[activeDate]||'';
-  const hist=Object.keys(state.notes).sort((a,b)=>b.localeCompare(a)).slice(0,7);
-  document.getElementById('noteHistory').innerHTML=hist.length?hist.map(k=>{const dd=new Date(k+'T00:00:00');return`<div style="padding:8px 0;border-bottom:0.5px solid var(--border);"><div style="font-size:11px;color:var(--text2);margin-bottom:3px;">${DY[dd.getDay()]}, ${dd.getDate()} ${MS[dd.getMonth()]} ${dd.getFullYear()}</div><div style="font-size:12px;line-height:1.5;">${state.notes[k]}</div></div>`;}).join(''):'<div style="text-align:center;padding:14px;font-size:12px;color:var(--text3);">Belum ada catatan.</div>';
-}
-
-async function saveNote(){
-  const v=document.getElementById('noteArea').value.trim();
-  if(v){
-    state.notes[activeDate]=v;
-    await saveToCloud(activeDate,'notes',{text:v});
-  } else {
-    delete state.notes[activeDate];
   }
-  renderNotes();
-  const el=document.getElementById('savedMsg');el.style.display='block';
-  setTimeout(()=>el.style.display='none',2000);
+  var ranked=Object.entries(nc).sort(function(a,b){return b[1]-a[1];}).slice(0,10);
+  var mx=ranked.length?ranked[0][1]:1;
+  document.getElementById('rankList').innerHTML=ranked.length?ranked.map(function(entry,i){
+    return '<div class="rrow"><span style="font-size:11px;color:var(--text3);width:16px;">'+(i+1)+'</span><span style="font-size:12px;font-weight:500;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+entry[0]+'</span><div class="rbg"><div style="height:5px;border-radius:3px;background:#1D9E75;width:'+Math.round(entry[1]/mx*100)+'%;"></div></div><span style="font-size:11px;color:var(--text2);min-width:30px;text-align:right;">'+entry[1]+'x</span></div>';
+  }).join(''):'<div style="text-align:center;padding:14px;font-size:12px;color:var(--text3);">Belum ada data.</div>';
+  var cr=CATS.map(function(c){return Object.assign({},c,{pct:ct[c.id]?Math.round(cd[c.id]/ct[c.id]*100):0,total:ct[c.id]});}).sort(function(a,b){return b.pct-a.pct;});
+  document.getElementById('catRankList').innerHTML=cr.map(function(c,i){
+    return '<div class="rrow"><span style="font-size:11px;color:var(--text3);width:16px;">'+(i+1)+'</span><div style="width:24px;height:24px;border-radius:50%;background:'+c.bg+';color:'+c.color+';display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;"><i class="ti '+c.icon+'"></i></div><span style="font-size:12px;font-weight:500;flex:1;">'+c.name+'</span><div class="rbg"><div style="height:5px;border-radius:3px;background:'+c.color+';width:'+c.pct+'%;"></div></div><span style="font-size:11px;color:var(--text2);min-width:30px;text-align:right;">'+c.pct+'%</span></div>';
+  }).join('');
 }
 
-function changeMonth(dir){viewMonth+=dir;if(viewMonth>11){viewMonth=0;viewYear++;}if(viewMonth<0){viewMonth=11;viewYear--;}renderStats();}
+function renderNotes(){
+  var d=new Date(activeDate+'T00:00:00');
+  document.getElementById('noteDateLbl').textContent=DY[d.getDay()]+', '+d.getDate()+' '+MS[d.getMonth()];
+  document.getElementById('noteArea').value=state.notes[activeDate]||lsLoadNote(activeDate)||'';
+  var hist=Object.keys(state.notes).sort(function(a,b){return b.localeCompare(a);}).slice(0,7);
+  document.getElementById('noteHistory').innerHTML=hist.length?hist.map(function(k){
+    var dd=new Date(k+'T00:00:00');
+    return '<div style="padding:8px 0;border-bottom:0.5px solid var(--border);"><div style="font-size:11px;color:var(--text2);margin-bottom:3px;">'+DY[dd.getDay()]+', '+dd.getDate()+' '+MS[dd.getMonth()]+' '+dd.getFullYear()+'</div><div style="font-size:12px;line-height:1.5;">'+state.notes[k]+'</div></div>';
+  }).join(''):'<div style="text-align:center;padding:14px;font-size:12px;color:var(--text3);">Belum ada catatan.</div>';
+}
+
+function saveNote(){
+  var v=document.getElementById('noteArea').value.trim();
+  if(v){state.notes[activeDate]=v;lsSaveNote(activeDate,v);cloudSaveNote(activeDate,v);}
+  else{delete state.notes[activeDate];}
+  renderNotes();
+  var el=document.getElementById('savedMsg');el.style.display='block';
+  setTimeout(function(){el.style.display='none';},2000);
+}
+
+function changeMonth(dir){
+  viewMonth+=dir;
+  if(viewMonth>11){viewMonth=0;viewYear++;}
+  if(viewMonth<0){viewMonth=11;viewYear--;}
+  renderStats();
+}
 
 function switchTab(tab,btn){
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));btn.classList.add('on');
-  document.querySelectorAll('.pv').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('on');});
+  btn.classList.add('on');
+  document.querySelectorAll('.pv').forEach(function(p){p.classList.remove('on');});
   document.getElementById('p'+tab.charAt(0).toUpperCase()+tab.slice(1)).classList.add('on');
   activeTab=tab;
   if(tab==='stats')setTimeout(renderStats,50);
@@ -548,16 +531,23 @@ function switchTab(tab,btn){
   if(tab==='notes')renderNotes();
 }
 
-function render(){renderHero();renderMetrics();renderToday();if(activeTab==='stats')renderStats();if(activeTab==='ranking')renderRanking();if(activeTab==='notes')renderNotes();}
+function render(){
+  renderHero();renderMetrics();renderToday();
+  if(activeTab==='stats')renderStats();
+  if(activeTab==='ranking')renderRanking();
+  if(activeTab==='notes')renderNotes();
+}
 
-// INIT
-sb.auth.onAuthStateChange(async(event,session)=>{
+try{var o=localStorage.getItem('ht_open');if(o)state.open=JSON.parse(o);}catch(e){}
+viewYear=new Date().getFullYear();viewMonth=new Date().getMonth();
+render();
+
+sb.auth.getSession().then(function(res){
+  var session=res.data.session;
   if(session){
     currentUser=session.user;
-    showApp();
-    await loadFromCloud();
-  } else {
-    showAuth();
+    document.getElementById('logoutBtn').style.display='block';
+    cloudLoad();
   }
 });
 </script>
