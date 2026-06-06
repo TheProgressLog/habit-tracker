@@ -553,7 +553,7 @@ function render(){
 
 try{var o=localStorage.getItem('ht_open');if(o)state.open=JSON.parse(o);}catch(e){}
 viewYear=new Date().getFullYear();viewMonth=new Date().getMonth();
-render();
+document.getElementById('loginModal').style.display='flex';
 function showLoginModal(){document.getElementById('loginModal').style.display='flex';}
 function hideLoginModal(){document.getElementById('loginModal').style.display='none';}
 
@@ -580,6 +580,8 @@ sb.auth.getSession().then(function(res){
     currentUser=session.user;
     document.getElementById('logoutBtn').style.display='block';
     document.getElementById('loginBtn').style.display='none';
+    document.getElementById('loginModal').style.display='none';
+    render();
     cloudLoad();
   }
 });
@@ -589,11 +591,14 @@ sb.auth.onAuthStateChange(function(event,session){
     currentUser=session.user;
     document.getElementById('logoutBtn').style.display='block';
     document.getElementById('loginBtn').style.display='none';
+    document.getElementById('loginModal').style.display='none';
+    render();
     cloudLoad();
   } else {
     currentUser=null;
     document.getElementById('logoutBtn').style.display='none';
     document.getElementById('loginBtn').style.display='block';
+    document.getElementById('loginModal').style.display='flex';
   }
 });
 </script>
